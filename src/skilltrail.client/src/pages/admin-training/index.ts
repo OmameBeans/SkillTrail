@@ -1,0 +1,1 @@
+export { AdminTrainingsPage } from "./ui/AdminTrainingPage";

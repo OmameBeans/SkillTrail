@@ -1,0 +1,23 @@
+.app {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+
+    .header {
+        width: 100%;
+    }
+
+    .main {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .outlet {
+            flex-grow: 1;
+            height: 0;
+            overflow: auto;
+        }
+    }
+}

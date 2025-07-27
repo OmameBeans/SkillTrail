@@ -1,0 +1,1 @@
+export { type Training } from "./model/Training";

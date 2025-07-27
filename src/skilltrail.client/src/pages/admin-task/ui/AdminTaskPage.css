@@ -1,0 +1,7 @@
+.gutter:hover {
+  cursor: col-resize !important;
+}
+
+.gutter {
+    background-color: var(--var-border-color);
+}
