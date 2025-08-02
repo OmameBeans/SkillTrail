@@ -7,6 +7,7 @@ namespace SkillTrail.Biz.Interfaces
         Task<IEnumerable<User>> GetAsync();
         Task<User?> GetAsync(string id);
         Task<bool> AddAsync(User user);
+        Task<bool> AddRangeAsync(IList<User> users);
         Task<bool> UpdateAsync(User user);
         Task<bool> DeleteAsync(string id);
     }

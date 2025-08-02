@@ -26,6 +26,7 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\SkillTrail.Data\SkillTrail.Data.csproj" />
+    <ProjectReference Include="..\SkillTrail.IO\SkillTrail.IO.csproj" />
   </ItemGroup>
 
 </Project>

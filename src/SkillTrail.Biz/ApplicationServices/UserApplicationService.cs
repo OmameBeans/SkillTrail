@@ -3,30 +3,31 @@ using SkillTrail.Biz.Interfaces;
 
 namespace SkillTrail.Biz.ApplicationServices
 {
-    public sealed class UserApplicationService(IUserRepository userRepository, IUserContext userContext)
+    public sealed class UserApplicationService(IUserRepository userRepository, IUserContext userContext, IUserCsvImporter userCsvImporter)
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly IUserContext _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
+        private readonly IUserCsvImporter _userCsvImporter = userCsvImporter ?? throw new ArgumentNullException(nameof(userCsvImporter));
 
         public async Task<Result<User>> GetCurrentUserAsync()
         {
             var userInfo = await _userContext.GetCurrentUserInfoAsync();
             var user = await _userRepository.GetAsync(userInfo.Id);
-            
+
             if (user == null)
             {
                 var result = new Result<User>();
                 result.ErrorMessages.Add("現在のユーザーが見つかりませんでした");
                 return result;
             }
-            
+
             return new Result<User>(user);
         }
 
         public async Task<Result<IList<User>>> GetAsync()
         {
             var users = await _userRepository.GetAsync();
-            return new Result<IList<User>>(users.ToArray());
+            return new Result<IList<User>>(users.OrderBy(u => u.Id).ToArray());
         }
 
         public async Task<Result<User>> GetAsync(string id)
@@ -54,7 +55,7 @@ namespace SkillTrail.Biz.ApplicationServices
 
             var newUser = new User
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = user.Id,
                 Name = user.Name,
                 Role = user.Role,
                 UpdateDateTime = DateTime.Now,
@@ -106,7 +107,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 result.ErrorMessages.Add("ユーザーIDが設定されていません");
                 return result;
             }
-            
+
             if (await _userRepository.DeleteAsync(id))
             {
                 return new Result();
@@ -115,6 +116,45 @@ namespace SkillTrail.Biz.ApplicationServices
             {
                 var result = new Result();
                 result.ErrorMessages.Add("ユーザーの削除に失敗しました");
+                return result;
+            }
+        }
+
+        public async Task<Result> ImportAsync(Stream stream, string fileName)
+        {
+            if (stream is null)
+            {
+                var result = new Result();
+                result.ErrorMessages.Add("インポートするファイルが指定されていません");
+                return result;
+            }
+
+            try
+            {
+                var users = await _userCsvImporter.ImportAsync(stream, fileName);
+                if (users == null || !users.Any())
+                {
+                    var result = new Result();
+                    result.ErrorMessages.Add("インポートするユーザーが見つかりませんでした");
+                    return result;
+                }
+                foreach (var user in users)
+                {
+                    user.UpdateDateTime = DateTime.Now;
+                    user.UpdateUserId = (await _userContext.GetCurrentUserInfoAsync()).Id;
+                }
+                if (!await _userRepository.AddRangeAsync(users.ToArray()))
+                {
+                    var result = new Result();
+                    result.ErrorMessages.Add("ユーザーのインポートに失敗しました");
+                    return result;
+                }
+                return new Result();
+            }
+            catch (Exception ex)
+            {
+                var result = new Result();
+                result.ErrorMessages.Add($"ユーザーのインポート中にエラーが発生しました: {ex.Message}");
                 return result;
             }
         }

@@ -23,6 +23,23 @@ namespace SkillTrail.Data.Repositories
             }
         }
 
+        public async Task<bool> AddRangeAsync(IList<User> users)
+        {
+            if (users == null || users.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(users), "ユーザーのリストが空です");
+            }
+            try
+            {
+                _dbContext.AddRange(users);
+                return await _dbContext.SaveChangesAsync().ContinueWith(t => t.IsCompletedSuccessfully);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("ユーザーの追加中にエラーが発生しました", ex);
+            }
+        }
+
         public async Task<bool> DeleteAsync(string id)
         {
             try

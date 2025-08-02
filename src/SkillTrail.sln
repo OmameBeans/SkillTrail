@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillTrail.Data", "SkillTra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillTrail.Biz", "SkillTrail.Biz\SkillTrail.Biz.csproj", "{46C1ED65-63E6-BD74-E6CB-5DA707E30934}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillTrail.IO", "SkillTrail.IO\SkillTrail.IO.csproj", "{84808C5E-9E2C-4576-98B3-8C9F3C42C8F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{46C1ED65-63E6-BD74-E6CB-5DA707E30934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46C1ED65-63E6-BD74-E6CB-5DA707E30934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46C1ED65-63E6-BD74-E6CB-5DA707E30934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84808C5E-9E2C-4576-98B3-8C9F3C42C8F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84808C5E-9E2C-4576-98B3-8C9F3C42C8F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84808C5E-9E2C-4576-98B3-8C9F3C42C8F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84808C5E-9E2C-4576-98B3-8C9F3C42C8F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

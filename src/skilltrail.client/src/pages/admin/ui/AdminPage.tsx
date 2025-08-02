@@ -7,7 +7,9 @@ export const AdminPage = () => {
     const location = useLocation();
 
     const menuItems = [
-        { label: "タスク管理", path: "/admin/task" }
+        { label: "ホーム", path: "/admin" },
+        { label: "ユーザー管理", path: "/admin/user" },
+        { label: "タスク管理", path: "/admin/task" },
     ];
 
     const handleMenuClick = (path: string) => {
@@ -33,7 +35,7 @@ export const AdminPage = () => {
                         const isActive = location.pathname === item.path;
                         return (
                             <ListItem key={item.path} disablePadding>
-                                <ListItemButton 
+                                <ListItemButton
                                     onClick={() => handleMenuClick(item.path)}
                                     selected={isActive}
                                     sx={{
@@ -62,6 +64,8 @@ export const AdminPage = () => {
             </Box>
             <Box sx={{
                 flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
             }}>
                 <Outlet />
             </Box>

@@ -2,6 +2,7 @@
 using SkillTrail.Biz.Extensions;
 using SkillTrail.Biz.Interfaces;
 using SkillTrail.Data.Extensions;
+using SkillTrail.IO.Extensions;
 
 namespace SkillTrail.Server
 {
@@ -20,6 +21,7 @@ namespace SkillTrail.Server
 
             builder.Services.AddScoped<IUserContext, UserContextAdapter>();
 
+            builder.Services.AddIO();
             builder.Services.AddData(builder.Configuration);
             builder.Services.AddBiz();
 
