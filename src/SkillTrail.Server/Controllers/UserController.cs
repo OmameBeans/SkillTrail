@@ -10,9 +10,9 @@ namespace SkillTrail.Server.Controllers
         private readonly UserApplicationService _userApplicationService = userApplicationService ?? throw new ArgumentNullException(nameof(userApplicationService));
 
         [HttpGet]
-        public IActionResult GetCurrentUser()
+        public async Task<IActionResult> GetCurrentUser()
         {
-            var result = _userApplicationService.GetCurrentUser();
+            var result = await _userApplicationService.GetCurrentUserAsync();
             return new JsonResult(result);
         }
     }

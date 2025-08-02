@@ -11,51 +11,51 @@ namespace SkillTrail.Server.Controllers
         private readonly TaskApplicationService _taskApplicationService = taskApplicationService ?? throw new ArgumentNullException(nameof(taskApplicationService));
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _taskApplicationService.Get();
+            var result = await _taskApplicationService.GetAsync();
             return new JsonResult(result);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            var result = _taskApplicationService.Get(id);
+            var result = await _taskApplicationService.GetAsync(id);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult GetByCategory([FromBody] GetByCategoryRequest request)
+        public async Task<IActionResult> GetByCategory([FromBody] GetByCategoryRequest request)
         {
-            var result = _taskApplicationService.GetByCategoryId(request.CategoryId);
+            var result = await _taskApplicationService.GetByCategoryIdAsync(request.CategoryId);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Create(Task task)
+        public async Task<IActionResult> Create(Task task)
         {
-            var result = _taskApplicationService.Create(task);
+            var result = await _taskApplicationService.CreateAsync(task);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Update(Task task)
+        public async Task<IActionResult> Update(Task task)
         {
-            var result = _taskApplicationService.Update(task);
+            var result = await _taskApplicationService.UpdateAsync(task);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Delete([FromBody] DeleteTaskRequest request)
+        public async Task<IActionResult> Delete([FromBody] DeleteTaskRequest request)
         {
-            var result = _taskApplicationService.Delete(request.Id);
+            var result = await _taskApplicationService.DeleteAsync(request.Id);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Reorder([FromBody] ReorderTaskRequest request)
+        public async Task<IActionResult> Reorder([FromBody] ReorderTaskRequest request)
         {
-            var result = _taskApplicationService.Reorder(request.CategoryId, request.TaskIds);
+            var result = await _taskApplicationService.ReorderAsync(request.CategoryId, request.TaskIds);
             return new JsonResult(result);
         }
 

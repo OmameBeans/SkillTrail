@@ -1,4 +1,5 @@
-﻿using SkillTrail.Biz.Entites;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillTrail.Biz.Entites;
 using SkillTrail.Biz.Interfaces;
 using SkillTrail.Data.DbContexts;
 
@@ -8,14 +9,14 @@ namespace SkillTrail.Data.Repositories
     {
         private readonly SkillTrailDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
-        public bool Add(TaskCategory taskCategory)
+        public async Task<bool> AddAsync(TaskCategory taskCategory)
         {
             try
             {
-                var maxOrder = _dbContext.TaskCategories.Any() ? _dbContext.TaskCategories.Max(c => c.Order) : 0;
+                var maxOrder = await _dbContext.TaskCategories.AnyAsync() ? await _dbContext.TaskCategories.MaxAsync(c => c.Order) : 0;
                 taskCategory.Order = maxOrder + 1;
-                _dbContext.Add(taskCategory);
-                _dbContext.SaveChanges();
+                await _dbContext.AddAsync(taskCategory);
+                await _dbContext.SaveChangesAsync();
 
                 return true;
             }
@@ -25,15 +26,15 @@ namespace SkillTrail.Data.Repositories
             }
         }
 
-        public bool Delete(string id)
+        public async Task<bool> DeleteAsync(string id)
         {
             try
             {
-                var category = _dbContext.TaskCategories.Find(id);
+                var category = await _dbContext.TaskCategories.FindAsync(id);
                 if (category != null)
                 {
                     _dbContext.TaskCategories.Remove(category);
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return true;
                 }
             }
@@ -44,23 +45,23 @@ namespace SkillTrail.Data.Repositories
             return false;
         }
 
-        public IList<TaskCategory> Get()
+        public async Task<IEnumerable<TaskCategory>> GetAsync()
         {
-            var categories = _dbContext.TaskCategories.OrderBy(tc => tc.Order).ToList();
+            var categories = await _dbContext.TaskCategories.OrderBy(tc => tc.Order).ToListAsync();
             return categories;
         }
 
-        public TaskCategory? Get(string id)
+        public async Task<TaskCategory?> GetAsync(string id)
         {
             var categories = _dbContext.TaskCategories;
-            return categories.FirstOrDefault(c => c.CategoryId == id);
+            return await categories.FirstOrDefaultAsync(c => c.CategoryId == id);
         }
 
-        public bool Update(TaskCategory taskCategory)
+        public async Task<bool> UpdateAsync(TaskCategory taskCategory)
         {
             try
             {
-                var existingCategory = _dbContext.TaskCategories.FirstOrDefault(tc => tc.Id == taskCategory.Id);
+                var existingCategory = await _dbContext.TaskCategories.FirstOrDefaultAsync(tc => tc.Id == taskCategory.Id);
                 if (existingCategory != null)
                 {
                     existingCategory.Title = taskCategory.Title;
@@ -68,7 +69,7 @@ namespace SkillTrail.Data.Repositories
                     existingCategory.CategoryId = taskCategory.CategoryId;
                     existingCategory.UpdateDateTime = DateTime.Now;
                     existingCategory.UpdateUserId = taskCategory.UpdateUserId;
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return true;
                 }
             }
@@ -79,11 +80,11 @@ namespace SkillTrail.Data.Repositories
             return false;
         }
 
-        public bool Reorder(IList<string> ids)
+        public async Task<bool> ReorderAsync(IList<string> ids)
         {
             try
             {
-                var categories = _dbContext.TaskCategories.Where(c => ids.Contains(c.Id)).ToList();
+                var categories = await _dbContext.TaskCategories.Where(c => ids.Contains(c.Id)).ToListAsync();
                 if (categories.Count != ids.Count)
                 {
                     return false;
@@ -96,7 +97,7 @@ namespace SkillTrail.Data.Repositories
                         category.Order = i + 1;
                     }
                 }
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch

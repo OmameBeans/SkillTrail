@@ -5,12 +5,12 @@ namespace SkillTrail.Biz.Interfaces
 {
     public interface ITaskRepository
     {
-        IList<Task> Get();
-        Task? Get(string id);
-        IList<Task> GetByCategoryId(string categoryId);
-        bool Add(Task task);
-        bool Update(Task task);
-        bool Delete(string id);
-        bool Reorder(string categoryId, IList<string> taskIds);
+        Task<IEnumerable<Task>> GetAsync();
+        Task<Task?> GetAsync(string id);
+        Task<IEnumerable<Task>> GetByCategoryIdAsync(string categoryId);
+        Task<bool> AddAsync(Task task);
+        Task<bool> UpdateAsync(Task task);
+        Task<bool> DeleteAsync(string id);
+        Task<bool> ReorderAsync(string categoryId, IList<string> taskIds);
     }
 }

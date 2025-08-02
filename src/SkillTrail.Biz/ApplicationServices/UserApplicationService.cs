@@ -8,10 +8,10 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly IUserContext _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
 
-        public Result<User> GetCurrentUser()
+        public async Task<Result<User>> GetCurrentUserAsync()
         {
-            var userInfo = _userContext.GetCurrentUserInfo();
-            var user = _userRepository.Get(userInfo.Id);
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
+            var user = await _userRepository.GetAsync(userInfo.Id);
             
             if (user == null)
             {
@@ -23,15 +23,15 @@ namespace SkillTrail.Biz.ApplicationServices
             return new Result<User>(user);
         }
 
-        public Result<IList<User>> Get()
+        public async Task<Result<IList<User>>> GetAsync()
         {
-            var users = _userRepository.Get();
-            return new Result<IList<User>>(users);
+            var users = await _userRepository.GetAsync();
+            return new Result<IList<User>>(users.ToArray());
         }
 
-        public Result<User> Get(string id)
+        public async Task<Result<User>> GetAsync(string id)
         {
-            var user = _userRepository.Get(id);
+            var user = await _userRepository.GetAsync(id);
             if (user == null)
             {
                 var result = new Result<User>();
@@ -41,7 +41,7 @@ namespace SkillTrail.Biz.ApplicationServices
             return new Result<User>(user);
         }
 
-        public Result Create(User user)
+        public async Task<Result> CreateAsync(User user)
         {
             if (user == null)
             {
@@ -50,7 +50,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var userInfo = _userContext.GetCurrentUserInfo();
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
 
             var newUser = new User
             {
@@ -61,7 +61,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 UpdateUserId = userInfo.Id,
             };
 
-            if (_userRepository.Add(newUser))
+            if (await _userRepository.AddAsync(newUser))
             {
                 return new Result();
             }
@@ -73,7 +73,7 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Update(User user)
+        public async Task<Result> UpdateAsync(User user)
         {
             if (user == null)
             {
@@ -82,11 +82,11 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var userInfo = _userContext.GetCurrentUserInfo();
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
             user.UpdateDateTime = DateTime.Now;
             user.UpdateUserId = userInfo.Id;
 
-            if (_userRepository.Update(user))
+            if (await _userRepository.UpdateAsync(user))
             {
                 return new Result();
             }
@@ -98,7 +98,7 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Delete(string id)
+        public async Task<Result> DeleteAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -107,7 +107,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
             
-            if (_userRepository.Delete(id))
+            if (await _userRepository.DeleteAsync(id))
             {
                 return new Result();
             }

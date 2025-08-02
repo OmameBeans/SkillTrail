@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SkillTrail.Biz.Entites;
 using SkillTrail.Biz.Interfaces;
 using SkillTrail.Data.DbContexts;
@@ -8,12 +9,12 @@ namespace SkillTrail.Data.Repositories
     {
         private readonly SkillTrailDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
-        public bool Add(User user)
+        public async Task<bool> AddAsync(User user)
         {
             try
             {
                 _dbContext.Add(user);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch
@@ -22,15 +23,15 @@ namespace SkillTrail.Data.Repositories
             }
         }
 
-        public bool Delete(string id)
+        public async Task<bool> DeleteAsync(string id)
         {
             try
             {
-                var user = _dbContext.Users.Find(id);
+                var user = await _dbContext.Users.FindAsync(id);
                 if (user != null)
                 {
                     _dbContext.Users.Remove(user);
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return true;
                 }
             }
@@ -41,30 +42,30 @@ namespace SkillTrail.Data.Repositories
             return false;
         }
 
-        public IList<User> Get()
+        public async Task<IEnumerable<User>> GetAsync()
         {
-            var users = _dbContext.Users.ToList();
+            var users = await _dbContext.Users.ToListAsync();
             return users;
         }
 
-        public User? Get(string id)
+        public async Task<User?> GetAsync(string id)
         {
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == id);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
         }
 
-        public bool Update(User user)
+        public async Task<bool> UpdateAsync(User user)
         {
             try
             {
-                var existingUser = _dbContext.Users.FirstOrDefault(u => u.Id == user.Id);
+                var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
                 if (existingUser != null)
                 {
                     existingUser.Name = user.Name;
                     existingUser.Role = user.Role;
                     existingUser.UpdateDateTime = user.UpdateDateTime;
                     existingUser.UpdateUserId = user.UpdateUserId;
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return true;
                 }
             }

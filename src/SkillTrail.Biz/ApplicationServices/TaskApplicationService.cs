@@ -15,15 +15,15 @@ namespace SkillTrail.Biz.ApplicationServices
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
         }
 
-        public Result<IList<Task>> Get()
+        public async Task<Result<IList<Task>>> GetAsync()
         {
-            var tasks = _taskRepository.Get();
-            return new Result<IList<Task>>(tasks);
+            var tasks = await _taskRepository.GetAsync();
+            return new Result<IList<Task>>(tasks.ToArray());
         }
 
-        public Result<Task> Get(string id)
+        public async Task<Result<Task>> GetAsync(string id)
         {
-            var task = _taskRepository.Get(id);
+            var task = await _taskRepository.GetAsync(id);
             if (task == null)
             {
                 var result = new Result<Task>();
@@ -33,13 +33,13 @@ namespace SkillTrail.Biz.ApplicationServices
             return new Result<Task>(task);
         }
 
-        public Result<IList<Task>> GetByCategoryId(string categoryId)
+        public async Task<Result<IList<Task>>> GetByCategoryIdAsync(string categoryId)
         {
-            var tasks = _taskRepository.GetByCategoryId(categoryId);
-            return new Result<IList<Task>>(tasks);
+            var tasks = await _taskRepository.GetByCategoryIdAsync(categoryId);
+            return new Result<IList<Task>>(tasks.ToArray());
         }
 
-        public Result Create(Task task)
+        public async Task<Result> CreateAsync(Task task)
         {
             if (task == null)
             {
@@ -48,7 +48,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var userInfo = _userContext.GetCurrentUserInfo();
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
 
             var newTask = new Task
             {
@@ -60,7 +60,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 UpdateUserId = userInfo.Id,
             };
 
-            if (_taskRepository.Add(newTask))
+            if (await _taskRepository.AddAsync(newTask))
             {
                 return new Result();
             }
@@ -72,7 +72,7 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Update(Task task)
+        public async Task<Result> UpdateAsync(Task task)
         {
             if (task == null)
             {
@@ -81,11 +81,11 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var userInfo = _userContext.GetCurrentUserInfo();
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
             task.UpdateDateTime = DateTime.Now;
             task.UpdateUserId = userInfo.Id;
 
-            if (_taskRepository.Update(task))
+            if (await _taskRepository.UpdateAsync(task))
             {
                 return new Result();
             }
@@ -97,7 +97,7 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Delete(string id)
+        public async Task<Result> DeleteAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -105,7 +105,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 result.ErrorMessages.Add("タスクIDが設定されていません");
                 return result;
             }
-            if (_taskRepository.Delete(id))
+            if (await _taskRepository.DeleteAsync(id))
             {
                 return new Result();
             }
@@ -117,9 +117,9 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Reorder(string categoryId, IList<string> taskIds)
+        public async Task<Result> ReorderAsync(string categoryId, IList<string> taskIds)
         {
-            if (_taskRepository.Reorder(categoryId, taskIds))
+            if (await _taskRepository.ReorderAsync(categoryId, taskIds))
             {
                 return new Result();
             }

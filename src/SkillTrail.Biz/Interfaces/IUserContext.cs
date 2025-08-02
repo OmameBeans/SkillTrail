@@ -2,7 +2,7 @@
 {
     public interface IUserContext
     {
-        UserInfo GetCurrentUserInfo();
+        Task<UserInfo> GetCurrentUserInfoAsync();
     }
 
     public sealed class UserInfo
