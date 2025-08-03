@@ -5,6 +5,7 @@ import { AdminPage } from "../../pages/admin";
 import { AdminHomePage } from "../../pages/admin-home";
 import { AdminTaskPage } from "../../pages/admin-task/ui/AdminTaskPage";
 import { AdminUserPage } from "../../pages/admin-user";
+import { EvaluationPage } from "../../pages/evaluation";
 
 export const Router = () => {
     const router = createBrowserRouter([
@@ -31,6 +32,10 @@ export const Router = () => {
                         {
                             path: "user",
                             element: <AdminUserPage />
+                        },
+                        {
+                            path: "evaluation/:userId",
+                            element: <EvaluationPage />
                         }
                     ]
                 }

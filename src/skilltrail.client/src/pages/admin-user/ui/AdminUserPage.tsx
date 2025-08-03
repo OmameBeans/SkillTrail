@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -20,6 +21,7 @@ type UserFormData = {
 };
 
 export const AdminUserPage = () => {
+    const navigate = useNavigate();
     const { data: users } = useUsers();
     const createUserMutation = useCreateUser();
     const updateUserMutation = useUpdateUser();
@@ -65,6 +67,10 @@ export const AdminUserPage = () => {
     const handleDeleteClick = (user: User) => {
         setUserToDelete(user);
         setDeleteConfirmOpen(true);
+    };
+
+    const handleEvaluateUser = (user: User) => {
+        navigate(`/admin/evaluation/${user.id}`);
     };
 
     const handleCloseDeleteDialog = () => {
@@ -121,6 +127,7 @@ export const AdminUserPage = () => {
                 users={users}
                 onEdit={handleOpenEditDialog}
                 onDelete={handleDeleteClick}
+                onEvaluate={handleEvaluateUser}
             />
 
             <UserEditDialog

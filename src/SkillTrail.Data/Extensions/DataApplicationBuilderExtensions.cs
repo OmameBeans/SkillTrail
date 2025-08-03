@@ -26,6 +26,7 @@ namespace SkillTrail.Data.Extensions
             services.AddScoped<ITaskCategoryRepository, TaskCategoryRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IEvaluationRepository, EvaluationRepository>();
 
             using (var scope = services.BuildServiceProvider().CreateScope())
             {
