@@ -7,9 +7,10 @@ namespace SkillTrail.Biz.Extensions
     {
         public static void AddBiz(this IServiceCollection services)
         {
-            services.AddScoped<TaskApplicationService>();
             services.AddScoped<TaskCategoryApplicationService>();
+            services.AddScoped<TaskApplicationService>();
             services.AddScoped<UserApplicationService>();
+            services.AddScoped<EvaluationApplicationService>();
         }
     }
 }

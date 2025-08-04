@@ -11,39 +11,39 @@ namespace SkillTrail.Server.Controllers
         private readonly TaskCategoryApplicationService _taskCategoryApplicationService = taskCategoryApplicationService ?? throw new ArgumentNullException(nameof(taskCategoryApplicationService));
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _taskCategoryApplicationService.Get();
+            var result = await _taskCategoryApplicationService.GetAsync();
             return new JsonResult(result);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            var result = _taskCategoryApplicationService.Get(id);
+            var result = await _taskCategoryApplicationService.GetAsync(id);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Create(TaskCategory taskCategory)
+        public async Task<IActionResult> Create(TaskCategory taskCategory)
         {
-            var result = _taskCategoryApplicationService.Create(taskCategory);
+            var result = await _taskCategoryApplicationService.CreateAsync(taskCategory);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Update(TaskCategory taskCategory)
+        public async Task<IActionResult> Update(TaskCategory taskCategory)
         {
-            var result = _taskCategoryApplicationService.Update(taskCategory);
+            var result = await _taskCategoryApplicationService.UpdateAsync(taskCategory);
             return new JsonResult(result);
         }
 
         [HttpPost]
-        public IActionResult Delete([FromBody] DeleteRequest request)
+        public async Task<IActionResult> Delete([FromBody] DeleteRequest request)
         {
             var id = request.Id;
 
-            var result = _taskCategoryApplicationService.Delete(id);
+            var result = await _taskCategoryApplicationService.DeleteAsync(id);
             return new JsonResult(result);
         }
 
@@ -53,9 +53,9 @@ namespace SkillTrail.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult Reorder([FromBody] ReorderRequest request)
+        public async Task<IActionResult> Reorder([FromBody] ReorderRequest request)
         {
-            var result = _taskCategoryApplicationService.Reorder(request.CategoryIds);
+            var result = await _taskCategoryApplicationService.ReorderAsync(request.CategoryIds);
             return new JsonResult(result);
         }
 

@@ -2,9 +2,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Layout } from "../layout/Layout";
 import { AutoRedirectPage } from "../../pages/auto-redirect";
 import { AdminPage } from "../../pages/admin";
-import { AdminTrainingsPage } from "../../pages/admin-training";
-import { AdminPhasePage } from "../../pages/admin-phase";
+import { AdminHomePage } from "../../pages/admin-home";
 import { AdminTaskPage } from "../../pages/admin-task/ui/AdminTaskPage";
+import { AdminUserPage } from "../../pages/admin-user";
+import { EvaluationPage } from "../../pages/evaluation";
 
 export const Router = () => {
     const router = createBrowserRouter([
@@ -21,16 +22,20 @@ export const Router = () => {
                     element: <AdminPage />,
                     children: [
                         {
-                            path: "trainings",
-                            element: <AdminTrainingsPage />
-                        },
-                        {
-                            path: "phase",
-                            element: <AdminPhasePage />
+                            index: true,
+                            element: <AdminHomePage />
                         },
                         {
                             path: "task",
                             element: <AdminTaskPage />
+                        },
+                        {
+                            path: "user",
+                            element: <AdminUserPage />
+                        },
+                        {
+                            path: "evaluation/:userId",
+                            element: <EvaluationPage />
                         }
                     ]
                 }

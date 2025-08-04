@@ -8,15 +8,15 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly ITaskCategoryRepository _taskCategoryRepository = taskCategoryRepository ?? throw new ArgumentNullException(nameof(taskCategoryRepository));
         private readonly IUserContext _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
 
-        public Result<IList<TaskCategory>> Get()
+        public async Task<Result<IList<TaskCategory>>> GetAsync()
         {
-            var categories = _taskCategoryRepository.Get();
-            return new Result<IList<TaskCategory>>(categories);
+            var categories = await _taskCategoryRepository.GetAsync();
+            return new Result<IList<TaskCategory>>(categories.ToArray());
         }
 
-        public Result<TaskCategory> Get(string id)
+        public async Task<Result<TaskCategory>> GetAsync(string id)
         {
-            var category = _taskCategoryRepository.Get(id);
+            var category = await _taskCategoryRepository.GetAsync(id);
             if (category == null)
             {
                 var result = new Result<TaskCategory>();
@@ -26,7 +26,7 @@ namespace SkillTrail.Biz.ApplicationServices
             return new Result<TaskCategory>(category);
         }
 
-        public Result Create(TaskCategory taskCategory)
+        public async Task<Result> CreateAsync(TaskCategory taskCategory)
         {
             if (taskCategory == null)
             {
@@ -35,7 +35,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var userInfo = _userContext.GetCurrentUserInfo();
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
 
             var newTaskCategory = new TaskCategory
             {
@@ -47,7 +47,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 UpdateUserId = userInfo.Id,
             };
 
-            if (_taskCategoryRepository.Add(newTaskCategory))
+            if (await _taskCategoryRepository.AddAsync(newTaskCategory))
             {
                 return new Result();
             }
@@ -59,7 +59,7 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Update(TaskCategory taskCategory)
+        public async Task<Result> UpdateAsync(TaskCategory taskCategory)
         {
             if (taskCategory == null)
             {
@@ -68,11 +68,11 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var userInfo = _userContext.GetCurrentUserInfo();
+            var userInfo = await _userContext.GetCurrentUserInfoAsync();
             taskCategory.UpdateDateTime = DateTime.Now;
             taskCategory.UpdateUserId = userInfo.Id;
 
-            if (_taskCategoryRepository.Update(taskCategory))
+            if (await _taskCategoryRepository.UpdateAsync(taskCategory))
             {
                 return new Result();
             }
@@ -84,7 +84,7 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Delete(string id)
+        public async Task<Result> DeleteAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -92,7 +92,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 result.ErrorMessages.Add("タスクカテゴリIDが設定されていません");
                 return result;
             }
-            if (_taskCategoryRepository.Delete(id))
+            if (await _taskCategoryRepository.DeleteAsync(id))
             {
                 return new Result();
             }
@@ -104,9 +104,9 @@ namespace SkillTrail.Biz.ApplicationServices
             }
         }
 
-        public Result Reorder(IList<string> ids)
+        public async Task<Result> ReorderAsync(IList<string> ids)
         {
-            if (_taskCategoryRepository.Reorder(ids))
+            if (await _taskCategoryRepository.ReorderAsync(ids))
             {
                 return new Result();
             }

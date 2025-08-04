@@ -22,6 +22,48 @@ namespace SkillTrail.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SkillTrail.Biz.Entites.Evaluation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CommunicationStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EvaluatorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("PGStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShareStateus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdateDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EvaluatorId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Evaluations");
+                });
+
             modelBuilder.Entity("SkillTrail.Biz.Entites.Progress", b =>
                 {
                     b.Property<string>("Id")
@@ -142,6 +184,25 @@ namespace SkillTrail.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SkillTrail.Biz.Entites.Evaluation", b =>
+                {
+                    b.HasOne("SkillTrail.Biz.Entites.User", "Evaluator")
+                        .WithMany()
+                        .HasForeignKey("EvaluatorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SkillTrail.Biz.Entites.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Evaluator");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SkillTrail.Biz.Entites.Progress", b =>

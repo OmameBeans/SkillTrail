@@ -4,10 +4,11 @@ namespace SkillTrail.Biz.Interfaces
 {
     public interface IUserRepository
     {
-        IList<User> Get();
-        User? Get(string id);
-        bool Add(User user);
-        bool Update(User user);
-        bool Delete(string id);
+        Task<IEnumerable<User>> GetAsync();
+        Task<User?> GetAsync(string id);
+        Task<bool> AddAsync(User user);
+        Task<bool> AddRangeAsync(IList<User> users);
+        Task<bool> UpdateAsync(User user);
+        Task<bool> DeleteAsync(string id);
     }
 }

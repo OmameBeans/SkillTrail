@@ -4,6 +4,7 @@ export const endpoint = {
     TASK_CATEGORY: `${API_BASE_URL}/taskCategory`,
     TASK: `${API_BASE_URL}/task`,
     USER: `${API_BASE_URL}/user`,
+    EVALUATION: `${API_BASE_URL}/evaluation`,
 } as const;
 
 export type Endpoint = typeof endpoint[keyof typeof endpoint];
