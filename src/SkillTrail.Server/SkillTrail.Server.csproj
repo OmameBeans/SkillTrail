@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -27,6 +27,8 @@
     </ProjectReference>
     <ProjectReference Include="..\SkillTrail.Data\SkillTrail.Data.csproj" />
     <ProjectReference Include="..\SkillTrail.IO\SkillTrail.IO.csproj" />
+    <ProjectReference Include="..\SkillTrail.Migrations.SQLite\SkillTrail.Migrations.SQLite.csproj" />
+    <ProjectReference Include="..\SkillTrail.Migrations.SQLServer\SkillTrail.Migrations.SQLServer.csproj" />
   </ItemGroup>
 
 </Project>

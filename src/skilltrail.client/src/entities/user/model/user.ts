@@ -1,6 +1,8 @@
 export type User = {
     id: string;
     name: string;
+    groupId: string;
+    groupName: string;
     role: Role;
 }
 

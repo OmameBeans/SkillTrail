@@ -3,4 +3,4 @@
 **/bin/
 **/obj/
 **/*.user
-/src/SkillTrail.Server/appsettings.json
+/src/SkillTrail.Server/Properties/PublishProfiles

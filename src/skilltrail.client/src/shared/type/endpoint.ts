@@ -5,6 +5,8 @@ export const endpoint = {
     TASK: `${API_BASE_URL}/task`,
     USER: `${API_BASE_URL}/user`,
     EVALUATION: `${API_BASE_URL}/evaluation`,
+    GROUP: `${API_BASE_URL}/group`,
+    PROGRESS: `${API_BASE_URL}/progress`,
 } as const;
 
 export type Endpoint = typeof endpoint[keyof typeof endpoint];

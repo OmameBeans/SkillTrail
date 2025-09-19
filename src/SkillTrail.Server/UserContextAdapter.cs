@@ -1,18 +1,25 @@
 ﻿using SkillTrail.Biz.Interfaces;
+using System.Diagnostics;
 
 namespace SkillTrail.Server
 {
-    public sealed class UserContextAdapter : IUserContext
+    public sealed class UserContextAdapter(IHttpContextAccessor httpContextAccessor) : IUserContext
     {
-        public async Task<UserInfo> GetCurrentUserInfoAsync()
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
+        public Task<UserInfo> GetCurrentUserInfoAsync()
         {
-            // モックユーザー情報を返す
-            await Task.Delay(1); // 非同期処理をシミュレート
-            
-            return new UserInfo
+            var httpContext = _httpContextAccessor.HttpContext;
+
+            // デバッグ時のモックユーザー
+            if (Debugger.IsAttached)
             {
-                Id = "manager"
-            };
+                return Task.FromResult(new UserInfo { Id = "manager" });
+            }
+
+            var rowUserId = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? string.Empty;
+            var userId = rowUserId == string.Empty ? "test" : rowUserId.Substring(rowUserId.Length - 4, 4);
+            return Task.FromResult(new UserInfo { Id = userId });
         }
     }
 }

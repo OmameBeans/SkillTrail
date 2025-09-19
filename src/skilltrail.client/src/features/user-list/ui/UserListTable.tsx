@@ -48,6 +48,11 @@ export const UserListTable = ({ users, onEdit, onDelete, onEvaluate }: UserListT
             minWidth: 500,
         },
         {
+            field: 'groupName',
+            headerName: 'グループ',
+            minWidth: 200,
+        },
+        {
             field: 'role',
             headerName: '役割',
             minWidth: 150,
@@ -86,7 +91,7 @@ export const UserListTable = ({ users, onEdit, onDelete, onEvaluate }: UserListT
 
                 // 受講者（role = 1）の場合のみ評価ボタンを追加
                 if (user.role === 1) {
-                    actions.splice(0, 0, 
+                    actions.splice(0, 0,
                         <GridActionsCellItem
                             key="evaluate"
                             icon={<Assessment />}

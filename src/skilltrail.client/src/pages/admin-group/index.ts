@@ -1,0 +1,1 @@
+export { AdminGroupPage } from './ui/AdminGroupPage';

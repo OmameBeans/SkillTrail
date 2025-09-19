@@ -14,12 +14,31 @@ namespace SkillTrail.Server
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var configuration = builder.Configuration;
+            var provider = configuration.GetValue("Provider", "SQLite");
+
+            builder.Services.AddDbContext<SkillTrailDbContext>(
+                    options => _ = provider switch
+                    {
+                        "SQLite" => options.UseSqlite(
+                            configuration.GetConnectionString("SQLite"),
+                            x => x.MigrationsAssembly("SkillTrail.Migrations.SQLite")),
+
+                        "SQLServer" => options.UseSqlServer(
+                            configuration.GetConnectionString("SQLServer"),
+                            x => x.MigrationsAssembly("SkillTrail.Migrations.SQLServer")),
+
+                        _ => throw new Exception($"Unsupported provider: {provider}")
+                    });
+
             // Add services to the container.
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<IUserContext, UserContextAdapter>();
 

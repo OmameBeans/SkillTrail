@@ -1,4 +1,5 @@
 ﻿using SkillTrail.Biz.Abstractions;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillTrail.Biz.Entites
 {
@@ -6,6 +7,10 @@ namespace SkillTrail.Biz.Entites
     {
         public string Name { get; set; } = string.Empty;
         public Role Role { get; set; } = Role.None;
+
+        public string? GroupId { get; set; }
+        [ForeignKey(nameof(GroupId))]
+        public Group? Group { get; set; }
     }
 
     public enum Role

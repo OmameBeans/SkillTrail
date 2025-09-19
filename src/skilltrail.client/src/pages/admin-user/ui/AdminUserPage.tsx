@@ -18,6 +18,7 @@ type UserFormData = {
     id: string;
     name: string;
     role: Role;
+    groupId?: string;
 };
 
 export const AdminUserPage = () => {
@@ -54,12 +55,16 @@ export const AdminUserPage = () => {
                 id: formData.id,
                 name: formData.name,
                 role: formData.role,
+                groupId: formData.groupId || '',
+                groupName: '', // サーバー側で設定される
             });
         } else {
             await createUserMutation.mutateAsync({
                 id: formData.id,
                 name: formData.name,
                 role: formData.role,
+                groupId: formData.groupId || '',
+                groupName: '', // サーバー側で設定される
             });
         }
     };

@@ -55,12 +55,13 @@ namespace SkillTrail.IO.Importers
         {
             var values = line.Split(',').Select(v => v.Trim().Trim('"')).ToArray();
 
-            if (values.Length != 3)
-                throw new InvalidOperationException($"列数が正しくありません。期待値: 3, 実際: {values.Length}");
+            if (values.Length != 4)
+                throw new InvalidOperationException($"列数が正しくありません。期待値: 4, 実際: {values.Length}");
 
             var id = values[0];
             var name = values[1];
-            var roleString = values[2];
+            var groupId = values[2];
+            var roleString = values[3];
 
             // バリデーション
             if (string.IsNullOrWhiteSpace(id))
@@ -77,6 +78,7 @@ namespace SkillTrail.IO.Importers
             {
                 Id = id,
                 Name = name,
+                GroupId = groupId,
                 Role = role,
                 UpdateDateTime = DateTime.Now,
                 UpdateUserId = string.Empty // ApplicationServiceで設定される

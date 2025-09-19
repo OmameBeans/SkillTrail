@@ -3,11 +3,12 @@ using SkillTrail.Biz.Interfaces;
 
 namespace SkillTrail.Biz.ApplicationServices
 {
-    public sealed class UserApplicationService(IUserRepository userRepository, IUserContext userContext, IUserCsvImporter userCsvImporter)
+    public sealed class UserApplicationService(IUserRepository userRepository, IUserContext userContext, IUserCsvImporter userCsvImporter, IUserQueryService userQueryService)
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly IUserContext _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
         private readonly IUserCsvImporter _userCsvImporter = userCsvImporter ?? throw new ArgumentNullException(nameof(userCsvImporter));
+        private readonly IUserQueryService _userQueryService = userQueryService ?? throw new ArgumentNullException(nameof(userQueryService));
 
         public async Task<Result<User>> GetCurrentUserAsync()
         {
@@ -24,10 +25,10 @@ namespace SkillTrail.Biz.ApplicationServices
             return new Result<User>(user);
         }
 
-        public async Task<Result<IList<User>>> GetAsync()
+        public async Task<Result<IList<UserQueryServiceModel>>> GetAsync()
         {
-            var users = await _userRepository.GetAsync();
-            return new Result<IList<User>>(users.OrderBy(u => u.Id).ToArray());
+            var users = await _userQueryService.GetAsync();
+            return new Result<IList<UserQueryServiceModel>>(users.OrderBy(u => u.Id).ToArray());
         }
 
         public async Task<Result<User>> GetAsync(string id)
@@ -58,6 +59,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 Id = user.Id,
                 Name = user.Name,
                 Role = user.Role,
+                GroupId = user.GroupId,
                 UpdateDateTime = DateTime.Now,
                 UpdateUserId = userInfo.Id,
             };

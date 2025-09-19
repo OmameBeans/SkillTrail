@@ -8,6 +8,7 @@ namespace SkillTrail.Biz.Entites
         public string TaskId { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public ProgressStatus Status { get; set; } = ProgressStatus.None;
+        public string Note { get; set; } = string.Empty;
 
         [ForeignKey(nameof(TaskId))]
         public Task Task { get; set; } = null!;

@@ -10,7 +10,7 @@ export const Header = () => {
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        SkillTrail
+                        進捗管理
                     </Typography>
                     <Typography variant="body1" component="div">
                         {`${currentUser.id} ${currentUser.name}`}

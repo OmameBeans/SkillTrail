@@ -11,6 +11,7 @@ namespace SkillTrail.Data.DbContexts
         public DbSet<User> Users { get; set; }
         public DbSet<Progress> Progresses { get; set; }
         public DbSet<Evaluation> Evaluations { get; set; }
+        public DbSet<Group> Groups { get; set; }
 
         public SkillTrailDbContext(DbContextOptions<SkillTrailDbContext> options)
             : base(options)
@@ -30,6 +31,17 @@ namespace SkillTrail.Data.DbContexts
                 .WithMany()
                 .HasForeignKey(e => e.EvaluatorId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<User>()
+                .HasData(new User
+                {
+                    Id = "manager",
+                    Name = "システム管理者",
+                    Role = Role.Admin,
+                    GroupId = null,
+                    UpdateDateTime = new DateTime(),
+                    UpdateUserId = "manager"
+                });
 
             base.OnModelCreating(modelBuilder);
         }

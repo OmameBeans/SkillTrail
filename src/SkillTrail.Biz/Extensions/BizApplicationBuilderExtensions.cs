@@ -11,6 +11,8 @@ namespace SkillTrail.Biz.Extensions
             services.AddScoped<TaskApplicationService>();
             services.AddScoped<UserApplicationService>();
             services.AddScoped<EvaluationApplicationService>();
+            services.AddScoped<GroupApplicationService>();
+            services.AddScoped<ProgressApplicationService>();
         }
     }
 }

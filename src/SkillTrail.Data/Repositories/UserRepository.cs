@@ -80,6 +80,7 @@ namespace SkillTrail.Data.Repositories
                 {
                     existingUser.Name = user.Name;
                     existingUser.Role = user.Role;
+                    existingUser.GroupId = user.GroupId;
                     existingUser.UpdateDateTime = user.UpdateDateTime;
                     existingUser.UpdateUserId = user.UpdateUserId;
                     await _dbContext.SaveChangesAsync();

@@ -67,12 +67,24 @@ export const UserCsvImportDialog = ({ open, onClose }: UserCsvImportDialogProps)
     };
 
     const downloadTemplate = () => {
-        const csvContent = 'id,name,role\nexample_user,サンプルユーザー,1\n';
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const csvContent = 'id,name,groupId,role\nexample_user,サンプルユーザー,,1\n';
+        
+        // UTF-8 BOM (Byte Order Mark) を追加
+        const BOM = '\uFEFF';
+        const csvWithBom = BOM + csvContent;
+        
+        // UTF-8エンコーディングでBlobを作成
+        const blob = new Blob([csvWithBom], { 
+            type: 'text/csv;charset=utf-8;' 
+        });
+        
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = 'user_template.csv';
         link.click();
+        
+        // メモリリークを防ぐためにURLを解放
+        URL.revokeObjectURL(link.href);
     };
 
     return (
@@ -134,13 +146,19 @@ export const UserCsvImportDialog = ({ open, onClose }: UserCsvImportDialogProps)
                             <ListItem>
                                 <ListItemText
                                     primary="カラム構成"
-                                    secondary="id, name, role の順で記載してください"
+                                    secondary="id, name, groupId, role の順で記載してください"
                                 />
                             </ListItem>
                             <ListItem>
                                 <ListItemText
                                     primary="role値"
                                     secondary="0: 未設定, 1: 受講者, 2: 管理者"
+                                />
+                            </ListItem>
+                            <ListItem>
+                                <ListItemText
+                                    primary="グループId"
+                                    secondary="グループ管理ページで確認してください"
                                 />
                             </ListItem>
                             <ListItem>

@@ -1,11 +1,13 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Layout } from "../layout/Layout";
-import { AutoRedirectPage } from "../../pages/auto-redirect";
 import { AdminPage } from "../../pages/admin";
 import { AdminHomePage } from "../../pages/admin-home";
 import { AdminTaskPage } from "../../pages/admin-task/ui/AdminTaskPage";
 import { AdminUserPage } from "../../pages/admin-user";
-import { EvaluationPage } from "../../pages/evaluation";
+import { AdminGroupPage } from "../../pages/admin-group";
+import { TraineePage } from "../../pages/trainee/ui/Trainee";
+import { TraineeHomePage } from "../../pages/trainee-home";
+import { TraineeProgressPage } from "../../pages/trainee-progress";
 
 export const Router = () => {
     const router = createBrowserRouter([
@@ -14,11 +16,21 @@ export const Router = () => {
             element: <Layout />,
             children: [
                 {
-                    path: "/",
-                    element: <AutoRedirectPage />
+                    path: "trainee",
+                    element: <TraineePage />,
+                    children: [
+                        {
+                            index: true,
+                            element: <TraineeHomePage />
+                        },
+                        {
+                            path: "progress",
+                            element: <TraineeProgressPage />
+                        }
+                    ]
                 },
                 {
-                    path: "/admin",
+                    path: "admin",
                     element: <AdminPage />,
                     children: [
                         {
@@ -34,9 +46,9 @@ export const Router = () => {
                             element: <AdminUserPage />
                         },
                         {
-                            path: "evaluation/:userId",
-                            element: <EvaluationPage />
-                        }
+                            path: "group",
+                            element: <AdminGroupPage />
+                        },
                     ]
                 }
             ]

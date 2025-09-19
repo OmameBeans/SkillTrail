@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -11,14 +11,17 @@ import {
     InputLabel,
     Button,
     Box,
+    CircularProgress,
 } from '@mui/material';
 import { role } from '../../../entities/user/model/user';
+import { useGroups } from '../../../entities/group';
 import type { User, Role } from '../../../entities/user/model/user';
 
 type UserFormData = {
     id: string;
     name: string;
     role: Role;
+    groupId?: string;
 };
 
 interface UserEditDialogProps {
@@ -29,11 +32,39 @@ interface UserEditDialogProps {
     isLoading: boolean;
 }
 
+const GroupSelectField: React.FC<{
+    value: string;
+    onChange: (value: string) => void;
+}> = ({ value, onChange }) => {
+    const { data: groups } = useGroups();
+
+    return (
+        <FormControl fullWidth>
+            <InputLabel>グループ</InputLabel>
+            <Select
+                value={value || ''}
+                label="グループ"
+                onChange={(e) => onChange(e.target.value || '')}
+            >
+                <MenuItem value="">
+                    <em>グループを選択しない</em>
+                </MenuItem>
+                {groups?.map((group) => (
+                    <MenuItem key={group.id} value={group.id}>
+                        {group.name}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    );
+};
+
 export const UserEditDialog = ({ open, user, onClose, onSubmit, isLoading }: UserEditDialogProps) => {
     const [formData, setFormData] = useState<UserFormData>({
         id: user?.id || '',
         name: user?.name || '',
         role: user?.role || role.TRAINEE,
+        groupId: user?.groupId || '',
     });
 
     // ダイアログが開かれた時にフォームデータを更新
@@ -43,6 +74,7 @@ export const UserEditDialog = ({ open, user, onClose, onSubmit, isLoading }: Use
                 id: user?.id || '',
                 name: user?.name || '',
                 role: user?.role || role.TRAINEE,
+                groupId: user?.groupId || '',
             });
         }
     }, [open, user]);
@@ -77,6 +109,16 @@ export const UserEditDialog = ({ open, user, onClose, onSubmit, isLoading }: Use
                         fullWidth
                         required
                     />
+                    <Suspense fallback={
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                            <CircularProgress size={24} />
+                        </Box>
+                    }>
+                        <GroupSelectField
+                            value={formData.groupId || ''}
+                            onChange={(value) => setFormData({ ...formData, groupId: value || undefined })}
+                        />
+                    </Suspense>
                     <FormControl fullWidth>
                         <InputLabel>役割</InputLabel>
                         <Select
