@@ -1,7 +1,7 @@
 import { Box, Chip, Paper } from '@mui/material';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { Edit, Delete, Assessment } from '@mui/icons-material';
+import { Edit, Delete } from '@mui/icons-material';
 import type { User, Role } from '../../../entities/user/model/user';
 
 const getRoleLabel = (userRole: Role): string => {
@@ -9,7 +9,7 @@ const getRoleLabel = (userRole: Role): string => {
         case 2: // role.ADMIN
             return '管理者';
         case 1: // role.TRAINEE
-            return '受講者';
+            return '新人';
         case 0: // role.NONE
         default:
             return '未設定';
@@ -35,7 +35,7 @@ interface UserListTableProps {
     onEvaluate: (user: User) => void;
 }
 
-export const UserListTable = ({ users, onEdit, onDelete, onEvaluate }: UserListTableProps) => {
+export const UserListTable = ({ users, onEdit, onDelete }: UserListTableProps) => {
     const columns: GridColDef[] = [
         {
             field: 'id',
@@ -89,18 +89,6 @@ export const UserListTable = ({ users, onEdit, onDelete, onEvaluate }: UserListT
                     />,
                 ];
 
-                // 受講者（role = 1）の場合のみ評価ボタンを追加
-                if (user.role === 1) {
-                    actions.splice(0, 0,
-                        <GridActionsCellItem
-                            key="evaluate"
-                            icon={<Assessment />}
-                            label="評価"
-                            onClick={() => onEvaluate(user)}
-                        />
-                    );
-                }
-
                 return actions;
             },
         },
@@ -124,6 +112,7 @@ export const UserListTable = ({ users, onEdit, onDelete, onEvaluate }: UserListT
                 pageSizeOptions={[25, 50, 100]}
                 disableRowSelectionOnClick
                 sx={{ border: 0 }}
+                showToolbar
             />
         </Paper>
     );

@@ -26,9 +26,6 @@ export const TraineePage = () => {
                 height: "100%",
                 borderRight: "1px solid var(--var-border-color)",
             }}>
-                <Typography variant="h6" sx={{ p: 2 }}>
-                    メニュー
-                </Typography>
                 <List>
                     {menuItems.map((item) => {
                         const isActive = location.pathname === item.path;

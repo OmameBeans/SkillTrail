@@ -52,6 +52,7 @@ export const UserCsvImportDialog = ({ open, onClose }: UserCsvImportDialogProps)
                     }
                     enqueueSnackbar('ユーザーのインポートが完了しました', { variant: 'success' });
                     setImportResult(result.data);
+                    onClose();
                 }
             } catch (error) {
                 console.error('Import failed:', error);

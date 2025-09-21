@@ -148,3 +148,26 @@ export const importUsersFromCsv = (file: File): Promise<GenericResult<{ imported
             throw new Error(e);
         });
 };
+
+export const getTraineesWithProgresses = (groupId: string): Promise<GenericResult<User[]>> => {
+    return fetch(`${endpoint.USER}/GetTraineesWithProgresses/${encodeURIComponent(groupId)}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+    })
+        .then(res => res.json())
+        .then(data => {
+            const result: GenericResult<User[]> = data as GenericResult<User[]>;
+
+            if (!result) {
+                throw new Error("新人一覧の取得に失敗しました");
+            }
+
+            return result;
+        })
+        .catch(e => {
+            throw new Error(e);
+        });
+};

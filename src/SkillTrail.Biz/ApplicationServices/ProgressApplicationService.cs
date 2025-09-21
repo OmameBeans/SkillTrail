@@ -1,4 +1,5 @@
-﻿using SkillTrail.Biz.Entites;
+﻿using Microsoft.Extensions.Logging;
+using SkillTrail.Biz.Entites;
 using SkillTrail.Biz.Interfaces;
 
 namespace SkillTrail.Biz.ApplicationServices
@@ -8,15 +9,33 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly IProgressRepository _progressRepository;
         private readonly IProgressQueryService _progressQueryService;
         private readonly IUserContext _userContext;
+        private readonly ITransactionManager _transactionManager;
+        private readonly IUserRepository _userRepository;
+        private readonly ITaskRepository _taskRepository;
+        private readonly IProgressExcelExporter _progressExcelExporter;
+        private readonly IGroupRepository _groupRepository;
+        private readonly ILogger<ProgressApplicationService> _logger;
 
         public ProgressApplicationService(
             IProgressRepository progressRepository,
             IProgressQueryService progressQueryService,
-            IUserContext userContext)
+            IUserContext userContext,
+            ITransactionManager transactionManager,
+            IUserRepository userRepository,
+            ILogger<ProgressApplicationService> logger,
+            ITaskRepository taskRepository,
+            IGroupRepository groupRepository,
+            IProgressExcelExporter progressExcelExporter)
         {
             _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
             _progressQueryService = progressQueryService ?? throw new ArgumentNullException(nameof(progressQueryService));
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
+            _transactionManager = transactionManager ?? throw new ArgumentNullException(nameof(transactionManager));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+            _progressExcelExporter = progressExcelExporter ?? throw new ArgumentNullException(nameof(progressExcelExporter));
+            _groupRepository = groupRepository ?? throw new ArgumentNullException(nameof(groupRepository));
         }
 
         /// <summary>
@@ -84,15 +103,26 @@ namespace SkillTrail.Biz.ApplicationServices
                 };
             }
 
-            if (await _progressRepository.AddOrUpdateAsync(progress))
+            try
             {
-                return new Result();
+                await _transactionManager.BeginAsync();
+                if (await _progressRepository.AddOrUpdateAsync(progress))
+                {
+                    await _transactionManager.CommitAsync();
+                    return new Result();
+                }
+                else
+                {
+                    await _transactionManager.RollbackAsync();
+                    var result = new Result();
+                    result.ErrorMessages.Add("進捗の更新に失敗しました");
+                    return result;
+                }
             }
-            else
+            catch
             {
-                var result = new Result();
-                result.ErrorMessages.Add("進捗の更新に失敗しました");
-                return result;
+                await _transactionManager.RollbackAsync();
+                throw;
             }
         }
 
@@ -117,6 +147,49 @@ namespace SkillTrail.Biz.ApplicationServices
             }
 
             return new Result<Progress>(progress);
+        }
+
+        public async Task<Result<ExportProgressesToExcelResult>> ExportProgressesToExcelAsync(string groupId)
+        {
+            try
+            {
+                var traineesWithProgresses = await _userRepository.GetTraineesWithProgressesAsync(groupId) ?? [];
+                var tasks = await _taskRepository.GetAsync() ?? [];
+                var group = await _groupRepository.GetAsync(groupId);
+
+                var groupName = string.Empty;
+                if (string.IsNullOrEmpty(groupId)) groupName = "全ユーザー";
+                else groupName = group?.Name ?? string.Empty;
+
+                var stream = await _progressExcelExporter.ExportAsync(traineesWithProgresses.ToArray(), tasks.ToArray(), groupName);
+
+                if (stream is null)
+                {
+                    var result = new Result<ExportProgressesToExcelResult>();
+                    result.ErrorMessages.Add("進捗のエクスポートに失敗しました");
+                    _logger.LogError("進捗のエクスポートに失敗: ストリームがnull");
+                    return result;
+                }
+
+                return new Result<ExportProgressesToExcelResult>(new ExportProgressesToExcelResult
+                {
+                    Stream = stream,
+                    GroupName = groupName,
+                });
+            }
+            catch (Exception ex)
+            {
+                var result = new Result<ExportProgressesToExcelResult>();
+                result.ErrorMessages.Add($"進捗のエクスポートに失敗しました: {ex.Message}");
+                _logger.LogError(ex, "進捗のエクスポートに失敗");
+                return result;
+            }
+        }
+
+        public sealed class ExportProgressesToExcelResult
+        {
+            public Stream Stream { get; set; } = null!;
+            public string GroupName { get; set; } = string.Empty;
         }
     }
 }

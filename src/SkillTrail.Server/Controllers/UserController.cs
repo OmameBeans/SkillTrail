@@ -25,6 +25,14 @@ namespace SkillTrail.Server.Controllers
             return new JsonResult(result);
         }
 
+        [HttpGet]
+        [HttpGet("{groupId}")]
+        public async Task<IActionResult> GetTraineesWithProgresses(string? groupId = null)
+        {
+            var result = await _userApplicationService.GetTraineesWithProgressesAsync(groupId ?? "");
+            return new JsonResult(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(User user)
         {

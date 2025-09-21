@@ -31,7 +31,7 @@ export const TraineeHomePage = () => {
         <Box sx={{ p: 3 }}>
 
             {/* 進捗サマリーカード */}
-            <Card sx={{ mb: 4, background: "#667eea", color: "white" }}>
+            <Card sx={{ mb: 4, background: "#5aa6f1ff", color: "white" }}>
                 <CardContent>
                     <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center" }}>
                         <CheckCircle sx={{ mr: 1 }} />

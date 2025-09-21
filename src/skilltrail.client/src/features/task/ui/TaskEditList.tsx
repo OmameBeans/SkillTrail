@@ -454,7 +454,7 @@ export const TaskEditList = () => {
                 <Typography variant="body2" color="textSecondary">
                     {selectedCategoryId
                         ? 'ドラッグ＆ドロップで順番を変更できます'
-                        : '更新日時順(降順)で表示されます'
+                        : 'すべてのタスクを表示しています。カテゴリを選択すると、ドラッグ＆ドロップで順番を変更できます。'
                     }
                 </Typography>
             </Box>
@@ -520,10 +520,6 @@ export const TaskEditList = () => {
                     // カテゴリが選択されていない場合：ドラッグアンドドロップ無効
                     <List>
                         {tasks
-                            .sort((a, b) => {
-                                // cidが指定されていない場合は更新日時で降順ソート（新しい順）
-                                return b.updateDateTime.valueOf() - a.updateDateTime.valueOf();
-                            })
                             .map((task) => {
                                 const category = categories.find(cat => cat.id === task.categoryId);
                                 return (

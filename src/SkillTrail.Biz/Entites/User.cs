@@ -11,6 +11,7 @@ namespace SkillTrail.Biz.Entites
         public string? GroupId { get; set; }
         [ForeignKey(nameof(GroupId))]
         public Group? Group { get; set; }
+        public ICollection<Progress> Progresses { get; set; } = [];
     }
 
     public enum Role

@@ -12,6 +12,7 @@ export const AdminPage = () => {
         { label: "ユーザー管理", path: "/admin/user" },
         { label: "グループ管理", path: "/admin/group" },
         { label: "タスク管理", path: "/admin/task" },
+        { label: "進捗管理", path: "/admin/progress" },
     ];
 
     const handleMenuClick = (path: string) => {
@@ -30,9 +31,6 @@ export const AdminPage = () => {
                     height: "100%",
                     borderRight: "1px solid var(--var-border-color)",
                 }}>
-                    <Typography variant="h6" sx={{ p: 2 }}>
-                        管理メニュー
-                    </Typography>
                     <List>
                         {menuItems.map((item) => {
                             const isActive = location.pathname === item.path;

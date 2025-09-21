@@ -50,7 +50,18 @@ namespace SkillTrail.Data.Repositories
 
         public async Task<IEnumerable<Task>> GetAsync()
         {
-            var tasks = await _dbContext.Tasks.ToListAsync();
+            var taskQuery = _dbContext.Tasks;
+            var taskCategoryQuery = _dbContext.TaskCategories;
+            var tasks = await taskQuery.Join(
+                taskCategoryQuery,
+                t => t.CategoryId,
+                tc => tc.Id,
+                (t, tc) => new { Task = t, Category = tc }
+                )
+                .OrderBy(x => x.Category.Order)
+                .ThenBy(x => x.Task.Order)
+                .Select(x => x.Task)
+                .ToListAsync();
             return tasks;
         }
 

@@ -1,8 +1,11 @@
+import type { Progress } from "../../progress";
+
 export type User = {
     id: string;
     name: string;
     groupId: string;
     groupName: string;
+    progresses?: Progress[];
     role: Role;
 }
 

@@ -14,7 +14,7 @@ export const AdminHomePage = () => {
         },
         {
             title: "タスク管理",
-            description: "学習タスクの作成、編集、削除が可能です",
+            description: "タスクの作成、編集、削除が可能です",
             icon: <Task color="primary" />,
             path: "/admin/task"
         },
@@ -27,7 +27,7 @@ export const AdminHomePage = () => {
             </Typography>
 
             <Typography variant="body1" sx={{ mb: 4, color: "text.secondary" }}>
-                SkillTrail管理システムへようこそ。以下の機能をご利用いただけます。
+                以下の機能をご利用いただけます。
             </Typography>
 
             <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 3 }}>
@@ -80,7 +80,7 @@ export const AdminHomePage = () => {
                         </ListItemIcon>
                         <ListItemText
                             primary="タスク管理"
-                            secondary="学習タスクの追加、編集、削除、カテゴリ管理"
+                            secondary="タスクの追加、編集、削除、カテゴリ管理"
                         />
                     </ListItem>
                 </List>

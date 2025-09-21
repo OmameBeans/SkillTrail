@@ -32,7 +32,8 @@ namespace SkillTrail.Data.Repositories
             try
             {
                 _dbContext.AddRange(users);
-                return await _dbContext.SaveChangesAsync().ContinueWith(t => t.IsCompletedSuccessfully);
+                await _dbContext.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {
@@ -69,6 +70,20 @@ namespace SkillTrail.Data.Repositories
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
+        }
+
+        public async Task<IEnumerable<User>> GetTraineesWithProgressesAsync(string groupId)
+        {
+            var trainees = _dbContext.Users
+                .Include(u => u.Progresses)
+                .Where(u => u.Role == Role.Trainee);
+
+            if (!string.IsNullOrEmpty(groupId))
+            {
+                trainees = trainees.Where(u => u.GroupId == groupId);
+            }
+
+            return await trainees.ToListAsync();
         }
 
         public async Task<bool> UpdateAsync(User user)

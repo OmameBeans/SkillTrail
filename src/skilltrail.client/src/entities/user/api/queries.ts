@@ -1,5 +1,5 @@
 import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCurrentUser, getAllUsers, createUser, updateUser, deleteUser, importUsersFromCsv } from './user';
+import { getCurrentUser, getAllUsers, createUser, updateUser, deleteUser, importUsersFromCsv, getTraineesWithProgresses } from './user';
 
 // クエリキー
 export const userKeys = {
@@ -16,7 +16,7 @@ export const useCurrentUser = () => {
             return getCurrentUser()
                 .then(result => {
                     if (result.hasError || !result.data) {
-                        throw new Error(result.errorMessages?.join(', ') || '現在のユーザーの取得に失敗しました');
+                        throw new Error(result.errorMessages?.join(', ') || 'ログインユーザーの取得に失敗しました');
                     }
                     return result.data;
                 })
@@ -97,3 +97,20 @@ export const useImportUsersFromCsv = () => {
         },
     });
 };
+
+export const useGetTraineesWithProgresses = (groupId: string) => {
+    return useSuspenseQuery({
+        queryKey: ['trainees', groupId],
+        queryFn: () => {
+            return getTraineesWithProgresses(groupId)
+                .then(result => {
+                    if (result.hasError || !result.data) {
+                        throw new Error(result.errorMessages?.join(', ') || '新人の進捗付き一覧の取得に失敗しました');
+                    }
+                    return result.data;
+                }).catch(error => {
+                    throw error;
+                });
+        },
+    });
+}

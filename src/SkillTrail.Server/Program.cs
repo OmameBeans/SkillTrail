@@ -1,5 +1,6 @@
-
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 using SkillTrail.Biz.Extensions;
 using SkillTrail.Biz.Interfaces;
 using SkillTrail.Data.DbContexts;
@@ -17,19 +18,44 @@ namespace SkillTrail.Server
             var configuration = builder.Configuration;
             var provider = configuration.GetValue("Provider", "SQLite");
 
-            builder.Services.AddDbContext<SkillTrailDbContext>(
-                    options => _ = provider switch
-                    {
-                        "SQLite" => options.UseSqlite(
-                            configuration.GetConnectionString("SQLite"),
-                            x => x.MigrationsAssembly("SkillTrail.Migrations.SQLite")),
+            // Serilog‚ÌŠî–{Ý’è
+            var loggerConfiguration = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .WriteTo.File("logs/skilltrail-.txt", rollingInterval: RollingInterval.Day);
 
-                        "SQLServer" => options.UseSqlServer(
-                            configuration.GetConnectionString("SQLServer"),
-                            x => x.MigrationsAssembly("SkillTrail.Migrations.SQLServer")),
+            if(provider == "SQLite")
+            {
+                var connectionString = configuration.GetConnectionString("SQLite");
 
-                        _ => throw new Exception($"Unsupported provider: {provider}")
-                    });
+                builder.Services.AddDbContext<SkillTrailDbContext>(
+                    options => options.UseSqlite(
+                        connectionString,
+                        x => x.MigrationsAssembly("SkillTrail.Migrations.SQLite")));
+            }
+
+            if(provider == "SQLServer")
+            {
+                var connectionString = configuration.GetConnectionString("SQLServer");
+
+                var sinkOpts = new MSSqlServerSinkOptions
+                {
+                    TableName = "Logs",
+                    AutoCreateSqlTable = true
+                };
+
+                loggerConfiguration.WriteTo.MSSqlServer(
+                    connectionString: connectionString,
+                    sinkOptions: sinkOpts);
+
+                builder.Services.AddDbContext<SkillTrailDbContext>(
+                    options => options.UseSqlServer(
+                        connectionString,
+                        x => x.MigrationsAssembly("SkillTrail.Migrations.SQLServer")));
+            }
+
+            Log.Logger = loggerConfiguration.CreateLogger();
+            builder.Host.UseSerilog();
 
             // Add services to the container.
 

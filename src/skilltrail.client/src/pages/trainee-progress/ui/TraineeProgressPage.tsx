@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { ProgressDatagrid } from "../../../features/progress-datagrid";
 
 export const TraineeProgressPage = () => {
@@ -10,14 +10,10 @@ export const TraineeProgressPage = () => {
             flexDirection: 'column',
         }}>
             <Box sx={{
-                p: 2,
-            }}>
-                <Typography variant="h5">進捗管理</Typography>
-            </Box>
-            <Box sx={{
                 flex: 1,
                 display: 'flex',
                 minHeight: 0,
+                pt: 1,
             }}>
                 <ProgressDatagrid />
             </Box>

@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SkillTrail.Biz.Interfaces;
-using SkillTrail.Data.DbContexts;
-using SkillTrail.Data.Repositories;
+using SkillTrail.Data.Managers;
 using SkillTrail.Data.QueryServices;
+using SkillTrail.Data.Repositories;
 
 namespace SkillTrail.Data.Extensions
 {
@@ -20,6 +19,7 @@ namespace SkillTrail.Data.Extensions
             services.AddScoped<IProgressRepository, ProgressRepository>();
             services.AddScoped<IUserQueryService, UserQueryService>();
             services.AddScoped<IProgressQueryService, ProgressQueryService>();
+            services.AddScoped<ITransactionManager, TransactionManager>();
 
             //using (var scope = services.BuildServiceProvider().CreateScope())
             //{

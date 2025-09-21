@@ -305,6 +305,7 @@ export const ProgressDatagrid = () => {
                 pageSizeOptions={[25, 50, 100]}
                 sx={{ border: 0 }}
                 rowHeight={36}
+                showToolbar
             />
         </Box>
     );

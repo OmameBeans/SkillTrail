@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SkillTrail.Biz.ApplicationServices;
 using SkillTrail.Biz.Entites;
+using System.Net;
+using static SkillTrail.Server.Controllers.GroupController;
 
 namespace SkillTrail.Server.Controllers
 {
@@ -97,6 +99,39 @@ namespace SkillTrail.Server.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportTraineeProgress([FromBody] ExportTraineeProgressRequest request)
+        {
+            try
+            {
+                var result = await _progressApplicationService.ExportProgressesToExcelAsync(request.GroupId);
+
+                if (result.HasError)
+                {
+                    return BadRequest(new { message = string.Join(", ", result.ErrorMessages) });
+                }
+
+                var stream = result.Data?.Stream;
+                if (stream == null)
+                {
+                    return BadRequest(new { message = "ファイルの生成に失敗しました" });
+                }
+
+                var groupName = result.Data?.GroupName ?? "";
+
+                // Excelファイルとしてダウンロード
+                return File(
+                    fileStream: stream,
+                    contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileDownloadName: $"進捗一覧_{groupName}_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"エクスポート中にエラーが発生しました: {ex.Message}" });
+            }
+        }
     }
 
     public class GetByUserIdRequest
@@ -107,6 +142,11 @@ namespace SkillTrail.Server.Controllers
     public class GetByIdRequest
     {
         public string Id { get; set; } = string.Empty;
+    }
+
+    public sealed class ExportTraineeProgressRequest
+    {
+        public string GroupId { get; set; } = string.Empty;
     }
 
     public class UpdateProgressRequest

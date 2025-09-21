@@ -99,10 +99,10 @@ export const EvaluationEditDialog = ({
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <InputLabel>共有力評価</InputLabel>
+                        <InputLabel>共有評価</InputLabel>
                         <Select
                             value={shareStatus}
-                            label="共有力評価"
+                            label="共有評価"
                             onChange={(e) => setShareStatus(Number(e.target.value) as EvaluationStatus)}
                         >
                             {Object.entries(evaluationStatus).map(([key, value]) => (
