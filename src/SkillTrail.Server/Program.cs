@@ -22,9 +22,12 @@ namespace SkillTrail.Server
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .WriteTo.Console()
-                .WriteTo.File("logs/skilltrail-.txt", rollingInterval: RollingInterval.Day);
+                .WriteTo.File("logs/skilltrail-.txt",
+                rollingInterval: RollingInterval.Day,
+                fileSizeLimitBytes: 10_000_000,
+                rollOnFileSizeLimit: true);
 
-            if(provider == "SQLite")
+            if (provider == "SQLite")
             {
                 var connectionString = configuration.GetConnectionString("SQLite");
 
@@ -34,19 +37,19 @@ namespace SkillTrail.Server
                         x => x.MigrationsAssembly("SkillTrail.Migrations.SQLite")));
             }
 
-            if(provider == "SQLServer")
+            if (provider == "SQLServer")
             {
                 var connectionString = configuration.GetConnectionString("SQLServer");
 
-                var sinkOpts = new MSSqlServerSinkOptions
-                {
-                    TableName = "Logs",
-                    AutoCreateSqlTable = true
-                };
+                //var sinkOpts = new MSSqlServerSinkOptions
+                //{
+                //    TableName = "Logs",
+                //    AutoCreateSqlTable = true,
+                //};
 
-                loggerConfiguration.WriteTo.MSSqlServer(
-                    connectionString: connectionString,
-                    sinkOptions: sinkOpts);
+                //loggerConfiguration.WriteTo.MSSqlServer(
+                //    connectionString: connectionString,
+                //    sinkOptions: sinkOpts);
 
                 builder.Services.AddDbContext<SkillTrailDbContext>(
                     options => options.UseSqlServer(

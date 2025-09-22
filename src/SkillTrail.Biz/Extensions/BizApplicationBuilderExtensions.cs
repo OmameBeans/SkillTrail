@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SkillTrail.Biz.ApplicationServices;
+using SkillTrail.Biz.Services;
 
 namespace SkillTrail.Biz.Extensions
 {
@@ -7,6 +8,8 @@ namespace SkillTrail.Biz.Extensions
     {
         public static void AddBiz(this IServiceCollection services)
         {
+            services.AddScoped<GroupService>();
+
             services.AddScoped<TaskCategoryApplicationService>();
             services.AddScoped<TaskApplicationService>();
             services.AddScoped<UserApplicationService>();

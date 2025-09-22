@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SkillTrail.Biz.Entites;
 using SkillTrail.Biz.Interfaces;
-using System.Security.Cryptography.X509Certificates;
+using SkillTrail.Biz.Services;
 
 namespace SkillTrail.Biz.ApplicationServices
 {
@@ -12,19 +12,22 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly IUserCsvImporter _userCsvImporter;
         private readonly IUserQueryService _userQueryService;
         private readonly ILogger<UserApplicationService> _logger;
+        private readonly GroupService _groupService;
 
         public UserApplicationService(
             IUserRepository userRepository,
             IUserContext userContext,
             IUserCsvImporter userCsvImporter,
             IUserQueryService userQueryService,
-            ILogger<UserApplicationService> logger)
+            ILogger<UserApplicationService> logger,
+            GroupService groupService)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
             _userCsvImporter = userCsvImporter ?? throw new ArgumentNullException(nameof(userCsvImporter));
             _userQueryService = userQueryService ?? throw new ArgumentNullException(nameof(userQueryService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _groupService = groupService ?? throw new ArgumentNullException(nameof(groupService));
         }
 
         public async Task<Result<User>> GetCurrentUserAsync()
@@ -132,6 +135,21 @@ namespace SkillTrail.Biz.ApplicationServices
                 }
 
                 var userInfo = await _userContext.GetCurrentUserInfoAsync();
+
+                if (string.IsNullOrEmpty(user.GroupId))
+                {
+                    user.GroupId = null;
+                }
+                else
+                {
+                    if (!await _groupService.ExistsGroup(user.GroupId))
+                    {
+                        _logger.LogWarning("指定されたグループが存在しません: {GroupId}", user.GroupId);
+                        var result = new Result();
+                        result.ErrorMessages.Add("指定されたグループが存在しません");
+                        return result;
+                    }
+                }
 
                 var newUser = new User
                 {
