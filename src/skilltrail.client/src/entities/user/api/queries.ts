@@ -1,5 +1,6 @@
 import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser, getAllUsers, createUser, updateUser, deleteUser, importUsersFromCsv, getTraineesWithProgresses } from './user';
+import { useSnackbar } from 'notistack';
 
 // クエリキー
 export const userKeys = {
@@ -53,11 +54,13 @@ export const useUsers = () => {
 // ユーザー作成ミューテーション
 export const useCreateUser = () => {
     const queryClient = useQueryClient();
-    
+    const { enqueueSnackbar } = useSnackbar();
+
     return useMutation({
         mutationFn: createUser,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: userKeys.list() });
+            enqueueSnackbar('ユーザーの作成が完了しました', { variant: 'success' });
         },
     });
 };
@@ -65,11 +68,13 @@ export const useCreateUser = () => {
 // ユーザー更新ミューテーション
 export const useUpdateUser = () => {
     const queryClient = useQueryClient();
-    
+    const { enqueueSnackbar } = useSnackbar();
+
     return useMutation({
         mutationFn: updateUser,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: userKeys.list() });
+            enqueueSnackbar('ユーザー情報の更新が完了しました', { variant: 'success' });
         },
     });
 };
@@ -77,11 +82,13 @@ export const useUpdateUser = () => {
 // ユーザー削除ミューテーション
 export const useDeleteUser = () => {
     const queryClient = useQueryClient();
-    
+    const { enqueueSnackbar } = useSnackbar();
+
     return useMutation({
         mutationFn: deleteUser,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: userKeys.list() });
+            enqueueSnackbar('ユーザーの削除が完了しました', { variant: 'success' });
         },
     });
 };
@@ -89,11 +96,13 @@ export const useDeleteUser = () => {
 // CSVインポートミューテーション
 export const useImportUsersFromCsv = () => {
     const queryClient = useQueryClient();
-    
+    const { enqueueSnackbar } = useSnackbar();
+
     return useMutation({
         mutationFn: importUsersFromCsv,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: userKeys.list() });
+            enqueueSnackbar('ユーザーのインポートが完了しました', { variant: 'success' });
         },
     });
 };

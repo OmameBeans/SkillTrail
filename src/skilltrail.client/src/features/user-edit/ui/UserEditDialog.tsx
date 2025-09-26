@@ -126,7 +126,7 @@ export const UserEditDialog = ({ open, user, onClose, onSubmit, isLoading }: Use
                             label="役割"
                             onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
                         >
-                            <MenuItem value={role.TRAINEE}>受講者</MenuItem>
+                            <MenuItem value={role.TRAINEE}>新人</MenuItem>
                             <MenuItem value={role.ADMIN}>管理者</MenuItem>
                             <MenuItem value={role.NONE}>未設定</MenuItem>
                         </Select>

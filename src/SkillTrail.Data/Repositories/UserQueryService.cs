@@ -20,8 +20,10 @@ namespace SkillTrail.Data.Repositories
                     GroupId = u.GroupId,
                     GroupName = u.Group != null ? u.Group.Name : null
                 })
+                .OrderBy(u => u.GroupName)
+                .ThenBy(u => u.Id)
                 .ToListAsync();
-            
+
             return users;
         }
 
@@ -39,7 +41,7 @@ namespace SkillTrail.Data.Repositories
                     GroupName = u.Group != null ? u.Group.Name : null
                 })
                 .FirstOrDefaultAsync();
-            
+
             return user;
         }
 
@@ -57,7 +59,7 @@ namespace SkillTrail.Data.Repositories
                     GroupName = u.Group != null ? u.Group.Name : null
                 })
                 .ToListAsync();
-            
+
             return users;
         }
     }

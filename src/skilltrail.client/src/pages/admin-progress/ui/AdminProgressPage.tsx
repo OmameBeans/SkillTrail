@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
-import { ProgressMatrix } from "../../../features/progress-matrix";
+import { ProgressExportPanel } from "../../../features/progress-export";
 
 export const AdminProgressPage = () => {
     return (
         <Box>
-            <ProgressMatrix />
+            <ProgressExportPanel />
         </Box>
     );
 };

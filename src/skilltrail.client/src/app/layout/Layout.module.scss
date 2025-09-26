@@ -3,6 +3,8 @@
     width: 100vw;
     display: flex;
     flex-direction: column;
+    background-color: white;
+    color: #333;
 
     .header {
         width: 100%;
@@ -23,5 +25,5 @@
 }
 
 :root {
-  color-scheme: light;
+    color-scheme: light;
 }

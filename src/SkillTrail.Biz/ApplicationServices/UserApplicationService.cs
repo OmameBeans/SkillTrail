@@ -65,11 +65,10 @@ namespace SkillTrail.Biz.ApplicationServices
             {
                 _logger.LogInformation("ユーザー一覧取得を開始");
 
-                var users = await _userQueryService.GetAsync();
-                var orderedUsers = users.OrderBy(u => u.Id).ToArray();
+                var users = (await _userQueryService.GetAsync()).ToArray();
 
-                _logger.LogInformation("ユーザー一覧を取得: {UserCount}件", orderedUsers.Length);
-                return new Result<IList<UserQueryServiceModel>>(orderedUsers);
+                _logger.LogInformation("ユーザー一覧を取得: {UserCount}件", users.Length);
+                return new Result<IList<UserQueryServiceModel>>(users);
             }
             catch (Exception ex)
             {

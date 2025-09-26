@@ -1,10 +1,10 @@
 // interfaces and types
-export type { 
-    Progress, 
-    ProgressQueryServiceModel, 
-    UpdateProgressRequest, 
-    GetProgressByUserIdRequest, 
-    GetProgressByIdRequest 
+export type {
+    Progress,
+    ProgressQueryServiceModel,
+    UpdateProgressRequest,
+    GetProgressByUserIdRequest,
+    GetProgressByIdRequest
 } from './model/progress';
 export { type ProgressStatus } from './model/progress';
 
@@ -22,5 +22,6 @@ export {
     useProgressByUserId,
     useProgressById,
     useUpdateProgress,
+    useExportTraineeProgress,
     progressKeys
 } from './api/queries';

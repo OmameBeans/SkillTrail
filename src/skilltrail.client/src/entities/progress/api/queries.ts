@@ -3,8 +3,10 @@ import {
     getCurrentUserProgress,
     getProgressByUserId,
     getProgressById,
-    updateProgress
+    updateProgress,
+    exportTraineeProgress
 } from './progress';
+import { useSnackbar } from 'notistack';
 
 // クエリキー
 export const progressKeys = {
@@ -93,6 +95,19 @@ export const useUpdateProgress = () => {
         onSuccess: () => {
             // 進捗関連のすべてのクエリを無効化して再取得
             queryClient.invalidateQueries({ queryKey: progressKeys.all });
+        },
+    });
+};
+
+export const useExportTraineeProgress = () => {
+    const { enqueueSnackbar } = useSnackbar();
+    return useMutation({
+        mutationFn: ({ groupId, groupName }: { groupId: string, groupName: string }) => exportTraineeProgress(groupId, groupName),
+        onSuccess: () => {
+            enqueueSnackbar('進捗のエクスポートが完了しました', { variant: 'success' });
+        },
+        onError: (error: Error) => {
+            enqueueSnackbar(`進捗のエクスポートに失敗しました: ${error.message}`, { variant: 'error' });
         },
     });
 };

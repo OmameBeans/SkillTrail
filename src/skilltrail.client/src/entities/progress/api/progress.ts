@@ -6,7 +6,7 @@ import type {
     GetProgressByUserIdRequest,
     GetProgressByIdRequest
 } from '../model/progress';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 // 現在ログイン中のユーザーの進捗一覧を取得
 export const getCurrentUserProgress = (): Promise<GenericResult<ProgressQueryServiceModel[]>> => {
@@ -92,4 +92,44 @@ export const updateProgress = (taskId: string, status: number, note: string): Pr
     }).catch(e => {
         throw new Error(e);
     });
+};
+
+export const exportTraineeProgress = (groupId: string, groupName: string): Promise<void> => {
+    return fetch(`${endpoint.PROGRESS}/ExportTraineeProgress`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ groupId }),
+    })
+        .then(async (response) => {
+            if (!response.ok) {
+                // エラーレスポンスの場合はJSONを取得してエラーメッセージを表示
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'エクスポートに失敗しました');
+            }
+
+            // Blobオブジェクトとしてレスポンスを取得
+            const blob = await response.blob();
+            
+            const nowDate = dayjs();
+            const dateString = nowDate.format('YYYYMMDDHHmmss');
+            const filename = `進捗一覧_${groupName}_${dateString}.xlsx`;
+
+            // ダウンロードリンクを作成してクリック
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            
+            // クリーンアップ
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            throw new Error(error.message || 'エクスポート中にエラーが発生しました');
+        });
 };
