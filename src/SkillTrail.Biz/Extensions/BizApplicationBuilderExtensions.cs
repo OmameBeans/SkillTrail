@@ -20,6 +20,8 @@ namespace SkillTrail.Biz.Extensions
             services.AddScoped<GroupApplicationService>();
             services.AddScoped<ProgressApplicationService>();
 
+            services.AddScoped<ILevelCalculator, LevelCalculator>();
+
             if (!int.TryParse(configuration["Level:FirstItem"], out int firstItem))
             {
                 firstItem = 10;

@@ -16,6 +16,7 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly IProgressExcelExporter _progressExcelExporter;
         private readonly IGroupRepository _groupRepository;
         private readonly IExperiencePointsProvider _experiencePointsProvider;
+        private readonly ILevelCalculator _levelCalculator;
         private readonly ILogger<ProgressApplicationService> _logger;
 
         public ProgressApplicationService(
@@ -28,7 +29,8 @@ namespace SkillTrail.Biz.ApplicationServices
             ITaskRepository taskRepository,
             IGroupRepository groupRepository,
             IProgressExcelExporter progressExcelExporter,
-            IExperiencePointsProvider experiencePointsProvider)
+            IExperiencePointsProvider experiencePointsProvider,
+            ILevelCalculator levelCalculator)
         {
             _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
             _progressQueryService = progressQueryService ?? throw new ArgumentNullException(nameof(progressQueryService));
@@ -40,6 +42,7 @@ namespace SkillTrail.Biz.ApplicationServices
             _progressExcelExporter = progressExcelExporter ?? throw new ArgumentNullException(nameof(progressExcelExporter));
             _groupRepository = groupRepository ?? throw new ArgumentNullException(nameof(groupRepository));
             _experiencePointsProvider = experiencePointsProvider;
+            _levelCalculator = levelCalculator ?? throw new ArgumentNullException(nameof(levelCalculator));
         }
 
         /// <summary>
@@ -99,7 +102,7 @@ namespace SkillTrail.Biz.ApplicationServices
             var prevCompletedTaskIds = (await _progressRepository.GetByUserIdAsync(userInfo.Id)).Where(p => p.Status == ProgressStatus.Completed).Select(p => p.TaskId);
             var prevTasks = await _taskRepository.GetAsync(prevCompletedTaskIds.ToArray()) ?? [];
             var prevCompletedLevels = prevTasks.Select(t => t.Level);
-            var prevLevel = _experiencePointsProvider.GetLevelFromLevels(prevCompletedLevels.ToArray());
+            var prevLevel = _levelCalculator.CalculateLevel(prevCompletedLevels);
 
             if (existingProgress is not null)
             {
@@ -132,7 +135,7 @@ namespace SkillTrail.Biz.ApplicationServices
                     var newCompletedTaskIds = (await _progressRepository.GetByUserIdAsync(userInfo.Id)).Where(p => p.Status == ProgressStatus.Completed).Select(p => p.TaskId);
                     var newTasks = await _taskRepository.GetAsync(newCompletedTaskIds.ToArray()) ?? [];
                     var newCompletedLevels = newTasks.Select(t => t.Level);
-                    var newLelvel = _experiencePointsProvider.GetLevelFromLevels(newCompletedLevels.ToArray());
+                    var newLelvel = _levelCalculator.CalculateLevel(newCompletedLevels);
                     return new Result<UpdateProgressResult>()
                     {
                         Data = new UpdateProgressResult
