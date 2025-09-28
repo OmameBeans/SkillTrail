@@ -27,6 +27,7 @@ namespace SkillTrail.Data.QueryServices
                         {
                             Id = progress != null ? progress.Id : string.Empty,
                             TaskId = task.Id,
+                            Level = task.Level,
                             TaskName = $"{task.Title}",
                             UserId = userId,
                             Status = progress != null ? progress.Status : Biz.Entites.ProgressStatus.NotStarted,

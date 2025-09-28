@@ -4,7 +4,7 @@ export type {
     ProgressQueryServiceModel,
     UpdateProgressRequest,
     GetProgressByUserIdRequest,
-    GetProgressByIdRequest
+    GetProgressByIdRequest,
 } from './model/progress';
 export { type ProgressStatus } from './model/progress';
 

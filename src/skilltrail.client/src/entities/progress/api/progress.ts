@@ -4,7 +4,8 @@ import type {
     ProgressQueryServiceModel,
     UpdateProgressRequest,
     GetProgressByUserIdRequest,
-    GetProgressByIdRequest
+    GetProgressByIdRequest,
+    UpdateProgressResponse
 } from '../model/progress';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -74,7 +75,7 @@ export const getProgressById = (id: string): Promise<GenericResult<Progress>> =>
 };
 
 // 進捗を更新
-export const updateProgress = (taskId: string, status: number, note: string): Promise<SimpleResult> => {
+export const updateProgress = (taskId: string, status: number, note: string): Promise<GenericResult<UpdateProgressResponse>> => {
     return fetch(`${endpoint.PROGRESS}/update`, {
         method: 'POST',
         headers: {
@@ -82,7 +83,7 @@ export const updateProgress = (taskId: string, status: number, note: string): Pr
         },
         body: JSON.stringify({ taskId, status, note } as UpdateProgressRequest)
     }).then(res => res.json()).then(data => {
-        const result: SimpleResult = data as SimpleResult;
+        const result: GenericResult<UpdateProgressResponse> = data as GenericResult<UpdateProgressResponse>;
 
         if (!result) {
             throw new Error("進捗の更新に失敗しました");

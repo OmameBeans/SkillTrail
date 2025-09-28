@@ -11,5 +11,6 @@ namespace SkillTrail.Biz.Interfaces
         Task<bool> AddRangeAsync(IList<User> users);
         Task<bool> UpdateAsync(User user);
         Task<bool> DeleteAsync(string id);
+        Task<bool> UpdateExperiencePoints(string userId, long experiencePoints);
     }
 }

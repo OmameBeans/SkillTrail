@@ -13,7 +13,8 @@ import {
     DialogActions,
     Paper,
     Typography,
-    Chip
+    Chip,
+    Tooltip
 } from '@mui/material';
 import {
     DndContext,
@@ -50,6 +51,8 @@ import {
     taskKeys
 } from '../../../entities/task';
 import { useTaskCategories } from '../../../entities/task-category';
+import { LevelDialog } from '../../../widgets/level-dialog';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 
 // ソート可能なリストアイテムコンポーネント
 interface SortableItemProps {
@@ -116,6 +119,11 @@ const SortableItem = ({ task, category, onEdit, onDelete, isDragDisabled = false
                                     color="primary"
                                 />
                             )}
+                            <Chip
+                                label={`レベル ${task.level}`}
+                                size="small"
+                                variant="outlined"
+                            />
                         </Box>
                     }
                     secondary={task.description}
@@ -164,16 +172,20 @@ const EditDialog = ({ open, task, categories, onClose, onSave, isCreate, selecte
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [level, setLevel] = useState(1);
+    const [levelDialogOpen, setLevelDialogOpen] = useState(false);
 
     useEffect(() => {
         if (task) {
             setTitle(task.title);
             setDescription(task.description || '');
             setCategoryId(task.categoryId);
+            setLevel(task.level);
         } else {
             setTitle('');
             setDescription('');
             setCategoryId(selectedCategoryId);
+            setLevel(1);
         }
     }, [task, selectedCategoryId]);
 
@@ -195,6 +207,7 @@ const EditDialog = ({ open, task, categories, onClose, onSave, isCreate, selecte
                 categoryId,
                 description: description.trim(),
                 order: 0, // APIまたはhandleSaveで適切に設定される
+                level: level,
                 updateDateTime: dayjs(),
                 updateUserId: 'current-user'
             };
@@ -207,6 +220,7 @@ const EditDialog = ({ open, task, categories, onClose, onSave, isCreate, selecte
                 categoryId,
                 description: description.trim(),
                 order: task?.order || 0,
+                level: level,
                 updateDateTime: dayjs(),
                 updateUserId: 'current-user'
             };
@@ -217,54 +231,87 @@ const EditDialog = ({ open, task, categories, onClose, onSave, isCreate, selecte
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>
-                {isCreate ? '新しいタスクを作成' : 'タスクを編集'}
-            </DialogTitle>
-            <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-                    <TextField
-                        label="タスクタイトル"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        fullWidth
-                        required
+        <>
+            <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+                <DialogTitle>
+                    {isCreate ? '新しいタスクを作成' : 'タスクを編集'}
+                </DialogTitle>
+                <DialogContent>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+                        <TextField
+                            label="タスクタイトル"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            fullWidth
+                            required
+                        />
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            justifyContent: 'space-between'
+                        }}>
+                            <TextField
+                                label="レベル(1から50の範囲で設定してください)"
+                                type="number"
+                                fullWidth
+                                value={level}
+                                onChange={(e) => setLevel(Number(e.target.value))}
+                                inputProps={{ min: 1, max: 50 }}
+                            />
+                            <Tooltip title="経験値テーブル">
+                                <IconButton
+                                    size="small"
+                                    onClick={() => setLevelDialogOpen(true)}
+                                >
+                                    <InfoOutlineIcon fontSize="small" color='primary' />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                        <TextField
+                            label="カテゴリ"
+                            select
+                            SelectProps={{ native: true }}
+                            value={categoryId}
+                            onChange={(e) => setCategoryId(e.target.value)}
+                            fullWidth
+                            required
+                        >
+                            <option value="">カテゴリを選択</option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.title}
+                                </option>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="説明"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            fullWidth
+                            multiline
+                            rows={3}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleSave} variant="contained">
+                        {isCreate ? '作成' : '更新'}
+                    </Button>
+                    <Button onClick={onClose} variant="outlined">
+                        キャンセル
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {
+                levelDialogOpen && (
+                    <LevelDialog
+                        isOpen={levelDialogOpen}
+                        onClose={() => setLevelDialogOpen(false)}
                     />
-                    <TextField
-                        label="カテゴリ"
-                        select
-                        SelectProps={{ native: true }}
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
-                        fullWidth
-                        required
-                    >
-                        <option value="">カテゴリを選択</option>
-                        {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.title}
-                            </option>
-                        ))}
-                    </TextField>
-                    <TextField
-                        label="説明"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        fullWidth
-                        multiline
-                        rows={3}
-                    />
-                </Box>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleSave} variant="contained">
-                    {isCreate ? '作成' : '更新'}
-                </Button>
-                <Button onClick={onClose} variant="outlined">
-                    キャンセル
-                </Button>
-            </DialogActions>
-        </Dialog>
+                )
+            }
+        </>
     );
 };
 

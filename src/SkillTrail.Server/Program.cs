@@ -73,7 +73,7 @@ namespace SkillTrail.Server
 
             builder.Services.AddIO();
             builder.Services.AddData(builder.Configuration);
-            builder.Services.AddBiz();
+            builder.Services.AddBiz(builder.Configuration);
 
             var app = builder.Build();
 

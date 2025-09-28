@@ -98,6 +98,7 @@ namespace SkillTrail.Data.Repositories
                     }
                     existingTask.CategoryId = task.CategoryId;
                     existingTask.Order = task.Order;
+                    existingTask.Level = task.Level;
                     existingTask.UpdateDateTime = DateTime.Now;
                     existingTask.UpdateUserId = task.UpdateUserId;
                     await _dbContext.SaveChangesAsync();

@@ -11,6 +11,7 @@ namespace SkillTrail.Biz.Interfaces
     {
         public string Id { get; set; } = string.Empty;
         public string TaskId { get; set; } = string.Empty;
+        public int Level { get; set; }
         public string TaskName { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public ProgressStatus Status { get; set; } = ProgressStatus.None;

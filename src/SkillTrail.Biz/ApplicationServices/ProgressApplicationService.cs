@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using SkillTrail.Biz.Entites;
 using SkillTrail.Biz.Interfaces;
+using System.Security;
 
 namespace SkillTrail.Biz.ApplicationServices
 {
@@ -14,6 +15,7 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly ITaskRepository _taskRepository;
         private readonly IProgressExcelExporter _progressExcelExporter;
         private readonly IGroupRepository _groupRepository;
+        private readonly IExperiencePointsProvider _experiencePointsProvider;
         private readonly ILogger<ProgressApplicationService> _logger;
 
         public ProgressApplicationService(
@@ -25,7 +27,8 @@ namespace SkillTrail.Biz.ApplicationServices
             ILogger<ProgressApplicationService> logger,
             ITaskRepository taskRepository,
             IGroupRepository groupRepository,
-            IProgressExcelExporter progressExcelExporter)
+            IProgressExcelExporter progressExcelExporter,
+            IExperiencePointsProvider experiencePointsProvider)
         {
             _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
             _progressQueryService = progressQueryService ?? throw new ArgumentNullException(nameof(progressQueryService));
@@ -36,6 +39,7 @@ namespace SkillTrail.Biz.ApplicationServices
             _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
             _progressExcelExporter = progressExcelExporter ?? throw new ArgumentNullException(nameof(progressExcelExporter));
             _groupRepository = groupRepository ?? throw new ArgumentNullException(nameof(groupRepository));
+            _experiencePointsProvider = experiencePointsProvider;
         }
 
         /// <summary>
@@ -66,11 +70,11 @@ namespace SkillTrail.Biz.ApplicationServices
         /// <summary>
         /// 進捗を更新
         /// </summary>
-        public async Task<Result> UpdateProgressAsync(string taskId, ProgressStatus status, string note)
+        public async Task<Result<UpdateProgressResult>> UpdateProgressAsync(string taskId, ProgressStatus status, string note)
         {
             if (string.IsNullOrEmpty(taskId))
             {
-                var result = new Result();
+                var result = new Result<UpdateProgressResult>();
                 result.ErrorMessages.Add("タスクIDが設定されていません");
                 return result;
             }
@@ -79,7 +83,25 @@ namespace SkillTrail.Biz.ApplicationServices
 
             var existingProgress = await _progressRepository.GetByTaskIdAndUserIdAsync(taskId, userInfo.Id);
 
+            var task = await _taskRepository.GetAsync(taskId);
+
+            var currentUser = await _userRepository.GetAsync(userInfo.Id);
+
+            if (currentUser is null)
+            {
+                throw new Exception("現在ユーザーの取得に失敗しました");
+            }
+
             var progress = new Progress();
+
+            var prevStatus = existingProgress is null ? ProgressStatus.None : existingProgress.Status;
+            var newStatus = status;
+            var taskLevel = task?.Level ?? 0;
+            long de = 0;
+            if (prevStatus == ProgressStatus.Completed && newStatus != ProgressStatus.Completed) de = -(_experiencePointsProvider.GetExperiencePoints(taskLevel));
+            else if (prevStatus != ProgressStatus.Completed && newStatus == ProgressStatus.Completed) de = _experiencePointsProvider.GetExperiencePoints(taskLevel);
+            var prevLevel = _experiencePointsProvider.GetLevelFromExperiencePoints(Math.Max(0, currentUser.ExperiencePoints));
+            var newLelvel = _experiencePointsProvider.GetLevelFromExperiencePoints(Math.Max(0, currentUser.ExperiencePoints + de));
 
             if (existingProgress is not null)
             {
@@ -106,15 +128,22 @@ namespace SkillTrail.Biz.ApplicationServices
             try
             {
                 await _transactionManager.BeginAsync();
-                if (await _progressRepository.AddOrUpdateAsync(progress))
+                if (await _progressRepository.AddOrUpdateAsync(progress) && await _userRepository.UpdateExperiencePoints(currentUser.Id, de))
                 {
                     await _transactionManager.CommitAsync();
-                    return new Result();
+                    return new Result<UpdateProgressResult>()
+                    {
+                        Data = new UpdateProgressResult
+                        {
+                            PrevLevel = prevLevel,
+                            NewLevel = newLelvel,
+                        }
+                    };
                 }
                 else
                 {
                     await _transactionManager.RollbackAsync();
-                    var result = new Result();
+                    var result = new Result<UpdateProgressResult>();
                     result.ErrorMessages.Add("進捗の更新に失敗しました");
                     return result;
                 }
@@ -124,6 +153,12 @@ namespace SkillTrail.Biz.ApplicationServices
                 await _transactionManager.RollbackAsync();
                 throw;
             }
+        }
+
+        public class UpdateProgressResult
+        {
+            public long PrevLevel { get; set; }
+            public long NewLevel { get; set; }
         }
 
         /// <summary>

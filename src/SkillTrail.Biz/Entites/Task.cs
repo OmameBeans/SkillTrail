@@ -8,6 +8,7 @@ namespace SkillTrail.Biz.Entites
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string CategoryId { get; set; } = string.Empty;
+        public int Level { get; set; }
         public int Order { get; set; }
 
         [ForeignKey(nameof(CategoryId))]

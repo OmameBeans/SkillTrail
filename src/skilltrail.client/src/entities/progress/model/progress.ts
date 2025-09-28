@@ -21,6 +21,7 @@ export interface Progress {
 export interface ProgressQueryServiceModel {
     id: string;
     taskId: string;
+    level: number;
     taskName: string;
     userId: string;
     status: ProgressStatus;
@@ -42,4 +43,9 @@ export interface GetProgressByUserIdRequest {
 // ID指定での進捗取得リクエスト
 export interface GetProgressByIdRequest {
     id: string;
+}
+
+export type UpdateProgressResponse = {
+    prevLevel: number;
+    newLevel: number;
 }

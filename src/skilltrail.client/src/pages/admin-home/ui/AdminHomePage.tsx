@@ -1,5 +1,5 @@
 import { Box, Typography, Card, CardContent, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import { Task, Person } from "@mui/icons-material";
+import { Task, Person, Group, BarChart } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export const AdminHomePage = () => {
@@ -17,6 +17,18 @@ export const AdminHomePage = () => {
             description: "タスクの作成、編集、削除が可能です",
             icon: <Task color="primary" />,
             path: "/admin/task"
+        },
+        {
+            title: "グループ管理",
+            description: "グループの作成、編集が可能です",
+            icon: <Group color="primary" />,
+            path: "/admin/group"
+        },
+        {
+            title: "進捗管理",
+            description: "全ユーザーの進捗を出力できます",
+            icon: <BarChart color="primary" />,
+            path: "/admin/progress"
         },
     ];
 
@@ -81,6 +93,24 @@ export const AdminHomePage = () => {
                         <ListItemText
                             primary="タスク管理"
                             secondary="タスクの追加、編集、削除、カテゴリ管理"
+                        />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <Group />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="グループ管理"
+                            secondary="グループの作成・編集・削除"
+                        />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <BarChart />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="進捗管理"
+                            secondary="全体進捗・グループ別進捗のエクスポート"
                         />
                     </ListItem>
                 </List>

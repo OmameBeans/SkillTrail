@@ -7,6 +7,7 @@ namespace SkillTrail.Biz.Entites
     {
         public string Name { get; set; } = string.Empty;
         public Role Role { get; set; } = Role.None;
+        public long ExperiencePoints { get; set; } = 0;
 
         public string? GroupId { get; set; }
         [ForeignKey(nameof(GroupId))]

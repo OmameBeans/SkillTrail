@@ -56,6 +56,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 Title = task.Title,
                 Description = task.Description,
                 CategoryId = task.CategoryId,
+                Level = task.Level,
                 UpdateDateTime = DateTime.Now,
                 UpdateUserId = userInfo.Id,
             };

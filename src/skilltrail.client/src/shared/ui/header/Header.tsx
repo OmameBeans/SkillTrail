@@ -1,7 +1,8 @@
-import { AppBar, Box, Toolbar, Typography } from "@mui/material"
+import { AppBar, Box, IconButton, Toolbar, Tooltip, Typography } from "@mui/material"
 import { useCurrentUser } from "../../../features/current-user";
 import { useNavigate } from "react-router-dom";
 import { role } from "../../../entities/user";
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 
 export const Header = () => {
 
@@ -34,9 +35,23 @@ export const Header = () => {
                             </Typography>
                         )}
                     </Box>
-                    <Typography variant="body1" component="div">
-                        {`${currentUser.id} ${currentUser.name}`}
-                    </Typography>
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        justifyContent: 'end',
+                    }}>
+                        <Typography variant="body1" component="div">
+                            {`${currentUser.id} ${currentUser.name}`}
+                        </Typography>
+                        <Tooltip title="レベルを確認する">
+                            <IconButton size="small">
+                                <MilitaryTechIcon sx={{
+                                    color: 'gold',
+                                }} />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
                 </Toolbar>
             </AppBar>
         </Box>

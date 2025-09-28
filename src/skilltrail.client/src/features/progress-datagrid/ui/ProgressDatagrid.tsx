@@ -204,6 +204,16 @@ export const ProgressDatagrid = () => {
                 }
 
                 enqueueSnackbar('進捗を更新しました', { variant: 'success' });
+
+                if (result.data) {
+                    const { prevLevel, newLevel } = result.data;
+                    if (newLevel > prevLevel) {
+                        enqueueSnackbar(`レベルが${prevLevel}から${newLevel}に上がりました！`, { variant: 'success' });
+                    }
+                    if (newLevel < prevLevel) {
+                        enqueueSnackbar(`レベルが${prevLevel}から${newLevel}に下がりました😢`, { variant: 'warning' });
+                    }
+                }
             } catch (error) {
                 enqueueSnackbar('進捗の更新に失敗しました', { variant: 'error' });
                 console.error('Progress update error:', error);
@@ -257,6 +267,15 @@ export const ProgressDatagrid = () => {
             renderEditCell: ProgressSelectEditor,
         },
         {
+            field: 'level',
+            headerName: 'レベル',
+            width: 100,
+            type: 'number',
+            headerAlign: "left",
+            align: "center",
+            editable: false,
+        },
+        {
             field: 'note',
             headerName: 'メモ',
             minWidth: 200,
@@ -270,6 +289,7 @@ export const ProgressDatagrid = () => {
     const rows = progressData?.map((progress) => ({
         id: progress.taskId,
         taskId: progress.taskId,
+        level: progress.level,
         taskName: progress.taskName,
         status: progress.status,
         note: progress.note || '',

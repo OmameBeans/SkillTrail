@@ -108,5 +108,28 @@ namespace SkillTrail.Data.Repositories
             }
             return false;
         }
+
+        public async Task<bool> UpdateExperiencePoints(string userId, long experiencePoints)
+        {
+            try
+            {
+                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user is not null)
+                {
+                    user.ExperiencePoints += experiencePoints;
+                    await _dbContext.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

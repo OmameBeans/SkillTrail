@@ -6,6 +6,7 @@ export interface Task {
     categoryId: string;
     description?: string;
     order: number;
+    level: number;
     updateDateTime: Dayjs;
     updateUserId: string;
 }
