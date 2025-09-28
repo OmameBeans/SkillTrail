@@ -22,7 +22,7 @@ namespace SkillTrail.Migrations.SQLServer.Migrations
                 table: "Tasks",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 1);
 
             migrationBuilder.UpdateData(
                 table: "Users",

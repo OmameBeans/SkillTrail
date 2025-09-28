@@ -89,19 +89,17 @@ namespace SkillTrail.Biz.ApplicationServices
 
             if (currentUser is null)
             {
-                throw new Exception("現在ユーザーの取得に失敗しました");
+                var result = new Result<UpdateProgressResult>();
+                result.ErrorMessages.Add("ユーザーが見つかりませんでした");
+                return result;
             }
 
             var progress = new Progress();
 
-            var prevStatus = existingProgress is null ? ProgressStatus.None : existingProgress.Status;
-            var newStatus = status;
-            var taskLevel = task?.Level ?? 0;
-            long de = 0;
-            if (prevStatus == ProgressStatus.Completed && newStatus != ProgressStatus.Completed) de = -(_experiencePointsProvider.GetExperiencePoints(taskLevel));
-            else if (prevStatus != ProgressStatus.Completed && newStatus == ProgressStatus.Completed) de = _experiencePointsProvider.GetExperiencePoints(taskLevel);
-            var prevLevel = _experiencePointsProvider.GetLevelFromExperiencePoints(Math.Max(0, currentUser.ExperiencePoints));
-            var newLelvel = _experiencePointsProvider.GetLevelFromExperiencePoints(Math.Max(0, currentUser.ExperiencePoints + de));
+            var prevCompletedTaskIds = (await _progressRepository.GetByUserIdAsync(userInfo.Id)).Where(p => p.Status == ProgressStatus.Completed).Select(p => p.TaskId);
+            var prevTasks = await _taskRepository.GetAsync(prevCompletedTaskIds.ToArray()) ?? [];
+            var prevCompletedLevels = prevTasks.Select(t => t.Level);
+            var prevLevel = _experiencePointsProvider.GetLevelFromLevels(prevCompletedLevels.ToArray());
 
             if (existingProgress is not null)
             {
@@ -128,9 +126,13 @@ namespace SkillTrail.Biz.ApplicationServices
             try
             {
                 await _transactionManager.BeginAsync();
-                if (await _progressRepository.AddOrUpdateAsync(progress) && await _userRepository.UpdateExperiencePoints(currentUser.Id, de))
+                if (await _progressRepository.AddOrUpdateAsync(progress))
                 {
                     await _transactionManager.CommitAsync();
+                    var newCompletedTaskIds = (await _progressRepository.GetByUserIdAsync(userInfo.Id)).Where(p => p.Status == ProgressStatus.Completed).Select(p => p.TaskId);
+                    var newTasks = await _taskRepository.GetAsync(newCompletedTaskIds.ToArray()) ?? [];
+                    var newCompletedLevels = newTasks.Select(t => t.Level);
+                    var newLelvel = _experiencePointsProvider.GetLevelFromLevels(newCompletedLevels.ToArray());
                     return new Result<UpdateProgressResult>()
                     {
                         Data = new UpdateProgressResult

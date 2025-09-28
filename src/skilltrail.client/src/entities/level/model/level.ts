@@ -3,3 +3,9 @@ export interface Level {
     experiencePoints: number;
     cumulativeExperiencePoints: number;
 }
+
+export interface UserLevel {
+    level: number;
+    currentExperiencePoints: number;
+    nextLevelExperiencePoints: number;
+}

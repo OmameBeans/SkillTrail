@@ -66,5 +66,16 @@ namespace SkillTrail.Biz.Providers
             }
             return _maxLevel;
         }
+
+        public int GetLevelFromLevels(IReadOnlyCollection<int> levels)
+        {
+            if (levels.Count == 0) return 1;
+            long totalExp = 0;
+            foreach (var level in levels)
+            {
+                totalExp += GetExperiencePoints(level);
+            }
+            return (int)GetLevelFromExperiencePoints(totalExp);
+        }
     }
 }

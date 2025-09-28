@@ -7,6 +7,7 @@ namespace SkillTrail.Biz.Interfaces
     {
         Task<IEnumerable<Task>> GetAsync();
         Task<Task?> GetAsync(string id);
+        Task<IEnumerable<Task>> GetAsync(IReadOnlyCollection<string> ids);
         Task<IEnumerable<Task>> GetByCategoryIdAsync(string categoryId);
         Task<bool> AddAsync(Task task);
         Task<bool> UpdateAsync(Task task);

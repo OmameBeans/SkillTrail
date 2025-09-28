@@ -6,6 +6,8 @@ namespace SkillTrail.Biz.Interfaces
     {
         Task<Progress?> GetByIdAsync(string id);
         Task<Progress?> GetByTaskIdAndUserIdAsync(string taskId, string userId);
+        Task<IEnumerable<Progress>> GetByTaskIdAsync(string taskId);
+        Task<IEnumerable<Progress>> GetByUserIdAsync(string userId);
         Task<bool> AddOrUpdateAsync(Progress progress);
     }
 }

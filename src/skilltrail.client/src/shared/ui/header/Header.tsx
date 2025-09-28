@@ -3,12 +3,15 @@ import { useCurrentUser } from "../../../features/current-user";
 import { useNavigate } from "react-router-dom";
 import { role } from "../../../entities/user";
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import { useState } from "react";
+import { UserLevelDialog } from "../../../widgets/user-level-dialog";
 
 export const Header = () => {
 
     const { currentUser } = useCurrentUser();
     const navigation = useNavigate();
     const isAdmin = currentUser.role === role.ADMIN;
+    const [userLevelDialogOpen, setUserLevelDialogOpen] = useState(false);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -45,7 +48,7 @@ export const Header = () => {
                             {`${currentUser.id} ${currentUser.name}`}
                         </Typography>
                         <Tooltip title="レベルを確認する">
-                            <IconButton size="small">
+                            <IconButton size="small" onClick={() => setUserLevelDialogOpen(true)}>
                                 <MilitaryTechIcon sx={{
                                     color: 'gold',
                                 }} />
@@ -54,6 +57,9 @@ export const Header = () => {
                     </Box>
                 </Toolbar>
             </AppBar>
+            {userLevelDialogOpen && (
+                <UserLevelDialog isOpen={userLevelDialogOpen} onClose={() => setUserLevelDialogOpen(false)} />
+            )}
         </Box>
     );
 }

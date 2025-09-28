@@ -49,10 +49,24 @@ namespace SkillTrail.Data.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<IEnumerable<Progress>> GetByTaskIdAsync(string taskId)
+        {
+            return await _dbContext.Progresses
+                .Where(p => p.TaskId == taskId)
+                .ToListAsync();
+        }
+
         public async Task<Progress?> GetByTaskIdAndUserIdAsync(string taskId, string userId)
         {
             return await _dbContext.Progresses
                 .FirstOrDefaultAsync(p => p.TaskId == taskId && p.UserId == userId);
+        }
+
+        public async Task<IEnumerable<Progress>> GetByUserIdAsync(string userId)
+        {
+            return await _dbContext.Progresses
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
         }
     }
 }

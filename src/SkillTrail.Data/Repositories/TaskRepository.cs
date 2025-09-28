@@ -137,5 +137,10 @@ namespace SkillTrail.Data.Repositories
                 return false;
             }
         }
+
+        public async Task<IEnumerable<Task>> GetAsync(IReadOnlyCollection<string> ids)
+        {
+            return await _dbContext.Tasks.Where(t => ids.Contains(t.Id)).ToListAsync();
+        }
     }
 }

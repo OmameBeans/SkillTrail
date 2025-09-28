@@ -41,7 +41,10 @@ namespace SkillTrail.Biz.Extensions
             services.AddScoped<LevelApplicationService>(sp =>
             {
                 var experiencePointsProvider = sp.GetRequiredService<IExperiencePointsProvider>();
-                return new LevelApplicationService(experiencePointsProvider, maxLevel);
+                var userContext = sp.GetRequiredService<IUserContext>();
+                var progressRepository = sp.GetRequiredService<IProgressRepository>();
+                var taskRepository = sp.GetRequiredService<ITaskRepository>();
+                return new LevelApplicationService(experiencePointsProvider, maxLevel, userContext, progressRepository, taskRepository);
             });
         }
     }

@@ -15,5 +15,12 @@ namespace SkillTrail.Server.Controllers
             var result = _levelApplicationService.GetLevels();
             return new JsonResult(result);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentUserLevel()
+        {
+            var result = await _levelApplicationService.GetCurrentUserLevelAsync();
+            return new JsonResult(result);
+        }
     }
 }
