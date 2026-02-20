@@ -3,6 +3,8 @@ using SkillTrail.Biz.ApplicationServices;
 using SkillTrail.Biz.Entites;
 using System.Net;
 using static SkillTrail.Server.Controllers.GroupController;
+using System.IO;
+using System.Linq;
 
 namespace SkillTrail.Server.Controllers
 {
@@ -21,11 +23,12 @@ namespace SkillTrail.Server.Controllers
         /// 現在ログイン中のユーザーの進捗一覧を取得
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery(Name = "cid")] string? categoryId = null)
         {
             try
             {
-                var result = await _progressApplicationService.GetCurrentUserProgressAsync();
+                var normalizedCategoryId = string.IsNullOrWhiteSpace(categoryId) ? null : categoryId;
+                var result = await _progressApplicationService.GetCurrentUserProgressAsync(normalizedCategoryId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -47,7 +50,8 @@ namespace SkillTrail.Server.Controllers
                     return BadRequest(new { message = "ユーザーIDが必要です" });
                 }
 
-                var result = await _progressApplicationService.GetByUserIdAsync(request.UserId);
+                var categoryId = string.IsNullOrWhiteSpace(request.CategoryId) ? null : request.CategoryId;
+                var result = await _progressApplicationService.GetByUserIdAsync(request.UserId, categoryId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -105,7 +109,7 @@ namespace SkillTrail.Server.Controllers
         {
             try
             {
-                var result = await _progressApplicationService.ExportProgressesToExcelAsync(request.GroupId);
+                var result = await _progressApplicationService.ExportProgressesToExcelAsync(request.GroupId, request.CategoryId);
 
                 if (result.HasError)
                 {
@@ -118,13 +122,17 @@ namespace SkillTrail.Server.Controllers
                     return BadRequest(new { message = "ファイルの生成に失敗しました" });
                 }
 
-                var groupName = result.Data?.GroupName ?? "";
+                var groupName = result.Data?.GroupName ?? string.Empty;
+                var categoryName = result.Data?.CategoryName ?? "すべてのカテゴリ";
+                var safeGroupName = SanitizeFileNameSegment(groupName);
+                var safeCategoryName = SanitizeFileNameSegment(categoryName);
+                var fileName = $"進捗一覧_{safeGroupName}_{safeCategoryName}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
 
                 // Excelファイルとしてダウンロード
                 return File(
                     fileStream: stream,
                     contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    fileDownloadName: $"進捗一覧_{groupName}_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+                    fileDownloadName: fileName
                 );
             }
             catch (Exception ex)
@@ -132,11 +140,23 @@ namespace SkillTrail.Server.Controllers
                 return StatusCode(500, new { message = $"エクスポート中にエラーが発生しました: {ex.Message}" });
             }
         }
+
+        private static string SanitizeFileNameSegment(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "未設定";
+            }
+
+            var invalidChars = Path.GetInvalidFileNameChars();
+            return new string(value.Select(ch => invalidChars.Contains(ch) ? '_' : ch).ToArray());
+        }
     }
 
     public class GetByUserIdRequest
     {
         public string UserId { get; set; } = string.Empty;
+        public string? CategoryId { get; set; }
     }
 
     public class GetByIdRequest
@@ -147,6 +167,7 @@ namespace SkillTrail.Server.Controllers
     public sealed class ExportTraineeProgressRequest
     {
         public string GroupId { get; set; } = string.Empty;
+        public string? CategoryId { get; set; }
     }
 
     public class UpdateProgressRequest

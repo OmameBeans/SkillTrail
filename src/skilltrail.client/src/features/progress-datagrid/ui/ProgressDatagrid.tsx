@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { DataGrid, type GridColDef, type GridRenderEditCellParams, type GridCellParams } from '@mui/x-data-grid';
 import { Select, MenuItem, FormControl, Box, Chip, InputBase, Paper, Popper } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import {
     RadioButtonUnchecked,
     PlayArrow,
@@ -9,7 +10,9 @@ import {
 } from '@mui/icons-material';
 import { useCurrentUserProgress, useUpdateProgress } from '../../../entities/progress/api/queries';
 import { progressStatus, type ProgressStatus } from '../../../entities/progress/model/progress';
+import { useTaskCategories } from '../../../entities/task-category/api/queries';
 import { useSnackbar } from 'notistack';
+import { useLocalStorage } from '../../../shared/hooks';
 
 // 進捗ステータスの設定（ラベル、アイコン、色）
 const progressStatusConfig = {
@@ -38,6 +41,8 @@ const progressStatusConfig = {
         backgroundColor: '#e8f5e8',
     },
 };
+
+const SELECTED_CATEGORY_STORAGE_KEY = 'progress.selectedCategoryId';
 
 const ProgressSelectEditor = (props: GridRenderEditCellParams) => {
     const { id, value, api, field } = props;
@@ -181,10 +186,49 @@ const CommentTextarea = (props: GridRenderEditCellParams) => {
 };
 
 export const ProgressDatagrid = () => {
-    const { data: progressData } = useCurrentUserProgress();
+    const { data: categories } = useTaskCategories();
+    const [storedCategoryId, setStoredCategoryId] = useLocalStorage<string>(SELECTED_CATEGORY_STORAGE_KEY, '');
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>(storedCategoryId ?? '');
+    const normalizedCategoryId = selectedCategoryId.trim() ? selectedCategoryId : undefined;
+    const { data: progressData } = useCurrentUserProgress(normalizedCategoryId);
     const updateProgressMutation = useUpdateProgress();
     const { enqueueSnackbar } = useSnackbar();
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const normalizedStored = storedCategoryId ?? '';
+        setSelectedCategoryId(prev => (prev === normalizedStored ? prev : normalizedStored));
+    }, [storedCategoryId]);
+
+    useEffect(() => {
+        if (!categories) {
+            return;
+        }
+
+        if (!selectedCategoryId) {
+            return;
+        }
+
+        const exists = categories.some(category => category.id === selectedCategoryId);
+        if (!exists) {
+            setSelectedCategoryId('');
+            setStoredCategoryId('');
+        }
+    }, [categories, selectedCategoryId, setStoredCategoryId]);
+
+    const categoryOptions = useMemo(() => {
+        if (!categories) {
+            return [];
+        }
+
+        return [...categories].sort((a, b) => a.order - b.order);
+    }, [categories]);
+
+    const handleCategoryChange = useCallback((event: SelectChangeEvent<string>) => {
+        const value = event.target.value as string;
+        setSelectedCategoryId(value);
+        setStoredCategoryId(value ? value : '');
+    }, [setStoredCategoryId]);
 
     // 進捗更新処理
     const handleProgressUpdate = useCallback(
@@ -229,7 +273,22 @@ export const ProgressDatagrid = () => {
         {
             field: 'taskName',
             headerName: 'タスク名',
-            width: 500,
+            width: 400,
+            editable: false,
+        },
+        {
+            field: 'taskDescription',
+            headerName: 'タスク説明',
+            width: 400,
+            editable: false,
+        },
+        {
+            field: 'level',
+            headerName: 'レベル',
+            width: 100,
+            type: 'number',
+            headerAlign: "left",
+            align: "center",
             editable: false,
         },
         {
@@ -267,15 +326,6 @@ export const ProgressDatagrid = () => {
             renderEditCell: ProgressSelectEditor,
         },
         {
-            field: 'level',
-            headerName: 'レベル',
-            width: 100,
-            type: 'number',
-            headerAlign: "left",
-            align: "center",
-            editable: false,
-        },
-        {
             field: 'note',
             headerName: 'メモ',
             minWidth: 200,
@@ -291,6 +341,7 @@ export const ProgressDatagrid = () => {
         taskId: progress.taskId,
         level: progress.level,
         taskName: progress.taskName,
+        taskDescription: progress.taskDescription,
         status: progress.status,
         note: progress.note || '',
     })) || [];
@@ -298,35 +349,73 @@ export const ProgressDatagrid = () => {
     return (
         <Box sx={{
             display: 'flex',
+            flexDirection: 'column',
             height: '100%',
             width: '100%',
+            gap: 2,
         }}>
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                loading={loading}
-                disableRowSelectionOnClick
-                processRowUpdate={async (newRow) => {
-                    const oldRow = rows.find(row => row.id === newRow.id);
-                    if (oldRow && (oldRow.status !== newRow.status || oldRow.note !== newRow.note)) {
-                        await handleProgressUpdate(newRow.taskId, newRow.status, newRow.note);
-                    }
-                    return newRow;
-                }}
-                onProcessRowUpdateError={(error) => {
-                    console.error('Row update error:', error);
-                    enqueueSnackbar('進捗の更新に失敗しました', { variant: 'error' });
-                }}
-                initialState={{
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 100 },
-                    },
-                }}
-                pageSizeOptions={[25, 50, 100]}
-                sx={{ border: 0 }}
-                rowHeight={36}
-                showToolbar
-            />
+            <Box sx={{
+                display: 'flex',
+                pl: 2,
+            }}>
+                <FormControl size="small" sx={{ minWidth: 220 }}>
+                    <Select
+                        value={selectedCategoryId}
+                        onChange={handleCategoryChange}
+                        displayEmpty
+                        renderValue={(value) => {
+                            if (!value) {
+                                return 'すべてのカテゴリ';
+                            }
+
+                            const match = categoryOptions.find(option => option.id === value);
+                            return match?.title ?? 'すべてのカテゴリ';
+                        }}
+                        inputProps={{ 'aria-label': 'タスクカテゴリの選択' }}
+                    >
+                        <MenuItem value="">
+                            <em>すべてのカテゴリ</em>
+                        </MenuItem>
+                        {categoryOptions.map((category) => (
+                            <MenuItem key={category.id} value={category.id}>
+                                {category.title}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Box>
+            <Box sx={{
+                flex: 1,
+                display: 'flex',
+                minHeight: 0,
+            }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    loading={loading}
+                    disableRowSelectionOnClick
+                    processRowUpdate={async (newRow) => {
+                        const oldRow = rows.find(row => row.id === newRow.id);
+                        if (oldRow && (oldRow.status !== newRow.status || oldRow.note !== newRow.note)) {
+                            await handleProgressUpdate(newRow.taskId, newRow.status, newRow.note);
+                        }
+                        return newRow;
+                    }}
+                    onProcessRowUpdateError={(error) => {
+                        console.error('Row update error:', error);
+                        enqueueSnackbar('進捗の更新に失敗しました', { variant: 'error' });
+                    }}
+                    initialState={{
+                        pagination: {
+                            paginationModel: { page: 0, pageSize: 100 },
+                        },
+                    }}
+                    pageSizeOptions={[25, 50, 100]}
+                    sx={{ border: 0 }}
+                    rowHeight={36}
+                    showToolbar
+                />
+            </Box>
         </Box>
     );
 };

@@ -36,8 +36,7 @@ namespace SkillTrail.Server
                         connectionString,
                         x => x.MigrationsAssembly("SkillTrail.Migrations.SQLite")));
             }
-
-            if (provider == "SQLServer")
+            else if (provider == "SQLServer")
             {
                 var connectionString = configuration.GetConnectionString("SQLServer");
 
@@ -69,7 +68,7 @@ namespace SkillTrail.Server
 
             builder.Services.AddHttpContextAccessor();
 
-            builder.Services.AddScoped<IUserContext, UserContextAdapter>();
+            builder.Services.AddScoped<IUserContext, MockUserContextAdapter>();
 
             builder.Services.AddIO();
             builder.Services.AddData(builder.Configuration);

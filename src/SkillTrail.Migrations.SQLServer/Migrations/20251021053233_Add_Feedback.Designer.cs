@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillTrail.Data.DbContexts;
 
@@ -11,9 +12,11 @@ using SkillTrail.Data.DbContexts;
 namespace SkillTrail.Migrations.SQLServer.Migrations
 {
     [DbContext(typeof(SkillTrailDbContext))]
-    partial class SkillTrailDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251021053233_Add_Feedback")]
+    partial class Add_Feedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

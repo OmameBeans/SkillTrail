@@ -12,6 +12,7 @@ namespace SkillTrail.Data.DbContexts
         public DbSet<Progress> Progresses { get; set; }
         public DbSet<Evaluation> Evaluations { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         public SkillTrailDbContext(DbContextOptions<SkillTrailDbContext> options)
             : base(options)

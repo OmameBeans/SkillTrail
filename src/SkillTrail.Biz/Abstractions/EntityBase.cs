@@ -8,5 +8,11 @@ namespace SkillTrail.Biz.Abstractions
         public string Id { get; set; } = string.Empty;
         public DateTime UpdateDateTime { get; set; } = DateTime.MinValue;
         public string UpdateUserId { get; set; } = string.Empty;
+
+        public void SetUpdateInfo(string userId)
+        {
+            UpdateDateTime = DateTime.UtcNow;
+            UpdateUserId = userId;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace SkillTrail.Data.QueryServices
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<ProgressQueryServiceModel>> GetByUserIdAsync(string userId)
+        public async Task<IEnumerable<ProgressQueryServiceModel>> GetByUserIdAsync(string userId, string? categoryId = null)
         {
             var query = from task in _dbContext.Tasks
                         join progress in _dbContext.Progresses
@@ -22,6 +22,7 @@ namespace SkillTrail.Data.QueryServices
                         from progress in progressGroup.DefaultIfEmpty()
                         join category in _dbContext.TaskCategories
                             on task.CategoryId equals category.Id
+                        where string.IsNullOrEmpty(categoryId) || task.CategoryId == categoryId
                         orderby category.Order, task.Order
                         select new ProgressQueryServiceModel
                         {
@@ -29,6 +30,7 @@ namespace SkillTrail.Data.QueryServices
                             TaskId = task.Id,
                             Level = task.Level,
                             TaskName = $"{task.Title}",
+                            TaskDescription = task.Description,
                             UserId = userId,
                             Status = progress != null ? progress.Status : Biz.Entites.ProgressStatus.NotStarted,
                             Note = progress != null ? progress.Note : string.Empty,

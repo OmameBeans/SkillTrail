@@ -17,6 +17,7 @@ namespace SkillTrail.Biz.ApplicationServices
         private readonly IGroupRepository _groupRepository;
         private readonly IExperiencePointsProvider _experiencePointsProvider;
         private readonly ILogger<ProgressApplicationService> _logger;
+        private readonly ITaskCategoryRepository _taskCategoryRepository;
 
         public ProgressApplicationService(
             IProgressRepository progressRepository,
@@ -28,7 +29,8 @@ namespace SkillTrail.Biz.ApplicationServices
             ITaskRepository taskRepository,
             IGroupRepository groupRepository,
             IProgressExcelExporter progressExcelExporter,
-            IExperiencePointsProvider experiencePointsProvider)
+            IExperiencePointsProvider experiencePointsProvider,
+            ITaskCategoryRepository taskCategoryRepository)
         {
             _progressRepository = progressRepository ?? throw new ArgumentNullException(nameof(progressRepository));
             _progressQueryService = progressQueryService ?? throw new ArgumentNullException(nameof(progressQueryService));
@@ -40,12 +42,13 @@ namespace SkillTrail.Biz.ApplicationServices
             _progressExcelExporter = progressExcelExporter ?? throw new ArgumentNullException(nameof(progressExcelExporter));
             _groupRepository = groupRepository ?? throw new ArgumentNullException(nameof(groupRepository));
             _experiencePointsProvider = experiencePointsProvider;
+            _taskCategoryRepository = taskCategoryRepository ?? throw new ArgumentNullException(nameof(taskCategoryRepository));
         }
 
         /// <summary>
         /// ユーザーの進捗一覧を取得
         /// </summary>
-        public async Task<Result<IList<ProgressQueryServiceModel>>> GetByUserIdAsync(string userId)
+        public async Task<Result<IList<ProgressQueryServiceModel>>> GetByUserIdAsync(string userId, string? categoryId = null)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -54,17 +57,19 @@ namespace SkillTrail.Biz.ApplicationServices
                 return result;
             }
 
-            var progresses = await _progressQueryService.GetByUserIdAsync(userId);
+            var normalizedCategoryId = string.IsNullOrWhiteSpace(categoryId) ? null : categoryId;
+
+            var progresses = await _progressQueryService.GetByUserIdAsync(userId, normalizedCategoryId);
             return new Result<IList<ProgressQueryServiceModel>>(progresses.ToArray());
         }
 
         /// <summary>
         /// 現在ログイン中のユーザーの進捗一覧を取得
         /// </summary>
-        public async Task<Result<IList<ProgressQueryServiceModel>>> GetCurrentUserProgressAsync()
+        public async Task<Result<IList<ProgressQueryServiceModel>>> GetCurrentUserProgressAsync(string? categoryId = null)
         {
             var userInfo = await _userContext.GetCurrentUserInfoAsync();
-            return await GetByUserIdAsync(userInfo.Id);
+            return await GetByUserIdAsync(userInfo.Id, categoryId);
         }
 
         /// <summary>
@@ -186,19 +191,30 @@ namespace SkillTrail.Biz.ApplicationServices
             return new Result<Progress>(progress);
         }
 
-        public async Task<Result<ExportProgressesToExcelResult>> ExportProgressesToExcelAsync(string groupId)
+        public async Task<Result<ExportProgressesToExcelResult>> ExportProgressesToExcelAsync(string groupId, string? categoryId = null)
         {
             try
             {
-                var traineesWithProgresses = await _userRepository.GetTraineesWithProgressesAsync(groupId) ?? [];
-                var tasks = await _taskRepository.GetAsync() ?? [];
+                var normalizedCategoryId = string.IsNullOrWhiteSpace(categoryId) ? null : categoryId;
+
+                var traineesWithProgresses = (await _userRepository.GetTraineesWithProgressesAsync(groupId)).ToArray();
+                var tasks = normalizedCategoryId is null
+                    ? (await _taskRepository.GetAsync()).ToArray()
+                    : (await _taskRepository.GetByCategoryIdAsync(normalizedCategoryId)).ToArray();
                 var group = await _groupRepository.GetAsync(groupId);
 
                 var groupName = string.Empty;
                 if (string.IsNullOrEmpty(groupId)) groupName = "全ユーザー";
                 else groupName = group?.Name ?? string.Empty;
 
-                var stream = await _progressExcelExporter.ExportAsync(traineesWithProgresses.ToArray(), tasks.ToArray(), groupName);
+                var categoryName = "すべてのカテゴリ";
+                if (!string.IsNullOrEmpty(normalizedCategoryId))
+                {
+                    var category = await _taskCategoryRepository.GetAsync(normalizedCategoryId);
+                    categoryName = category?.Title ?? "カテゴリ未設定";
+                }
+
+                var stream = await _progressExcelExporter.ExportAsync(traineesWithProgresses, tasks, groupName);
 
                 if (stream is null)
                 {
@@ -212,6 +228,7 @@ namespace SkillTrail.Biz.ApplicationServices
                 {
                     Stream = stream,
                     GroupName = groupName,
+                    CategoryName = categoryName,
                 });
             }
             catch (Exception ex)
@@ -227,6 +244,7 @@ namespace SkillTrail.Biz.ApplicationServices
         {
             public Stream Stream { get; set; } = null!;
             public string GroupName { get; set; } = string.Empty;
+            public string CategoryName { get; set; } = string.Empty;
         }
     }
 }

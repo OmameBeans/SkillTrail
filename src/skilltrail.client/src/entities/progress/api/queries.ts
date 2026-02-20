@@ -12,18 +12,20 @@ import { useSnackbar } from 'notistack';
 export const progressKeys = {
     all: ['progress'] as const,
     lists: () => [...progressKeys.all, 'list'] as const,
-    currentUser: () => [...progressKeys.all, 'currentUser'] as const,
-    byUserId: (userId: string) => [...progressKeys.all, 'userId', userId] as const,
+    currentUser: (categoryId?: string) => [...progressKeys.all, 'currentUser', categoryId || 'all'] as const,
+    byUserId: (userId: string, categoryId?: string) => [...progressKeys.all, 'userId', userId, categoryId || 'all'] as const,
     details: () => [...progressKeys.all, 'detail'] as const,
     detail: (id: string) => [...progressKeys.details(), id] as const,
 };
 
 // 現在ログイン中のユーザーの進捗一覧を取得
-export const useCurrentUserProgress = () => {
+export const useCurrentUserProgress = (categoryId?: string) => {
+    const normalizedCategoryId = categoryId?.trim() ? categoryId : undefined;
+
     return useSuspenseQuery({
-        queryKey: progressKeys.currentUser(),
+        queryKey: progressKeys.currentUser(normalizedCategoryId),
         queryFn: () => {
-            return getCurrentUserProgress()
+            return getCurrentUserProgress(normalizedCategoryId)
                 .then(result => {
                     if (result.hasError || !result.data) {
                         throw new Error(result.errorMessages?.join(', ') || '進捗の取得に失敗しました');
@@ -38,11 +40,13 @@ export const useCurrentUserProgress = () => {
 };
 
 // 指定されたユーザーの進捗一覧を取得
-export const useProgressByUserId = (userId: string) => {
+export const useProgressByUserId = (userId: string, categoryId?: string) => {
+    const normalizedCategoryId = categoryId?.trim() ? categoryId : undefined;
+
     return useSuspenseQuery({
-        queryKey: progressKeys.byUserId(userId),
+        queryKey: progressKeys.byUserId(userId, normalizedCategoryId),
         queryFn: () => {
-            return getProgressByUserId(userId)
+            return getProgressByUserId(userId, normalizedCategoryId)
                 .then(result => {
                     if (result.hasError || !result.data) {
                         throw new Error(result.errorMessages?.join(', ') || '進捗の取得に失敗しました');
@@ -102,7 +106,8 @@ export const useUpdateProgress = () => {
 export const useExportTraineeProgress = () => {
     const { enqueueSnackbar } = useSnackbar();
     return useMutation({
-        mutationFn: ({ groupId, groupName }: { groupId: string, groupName: string }) => exportTraineeProgress(groupId, groupName),
+        mutationFn: ({ groupId, groupName, categoryId, categoryName }: { groupId: string; groupName: string; categoryId?: string; categoryName: string }) =>
+            exportTraineeProgress({ groupId, groupName, categoryId, categoryName }),
         onSuccess: () => {
             enqueueSnackbar('進捗のエクスポートが完了しました', { variant: 'success' });
         },

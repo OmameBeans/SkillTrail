@@ -17,6 +17,7 @@ namespace SkillTrail.Data.Extensions
             services.AddScoped<IEvaluationRepository, EvaluationRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IProgressRepository, ProgressRepository>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IUserQueryService, UserQueryService>();
             services.AddScoped<IProgressQueryService, ProgressQueryService>();
             services.AddScoped<ITransactionManager, TransactionManager>();

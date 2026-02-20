@@ -59,6 +59,31 @@ namespace SkillTrail.Migrations.SQLite.Migrations
                     b.ToTable("Evaluations");
                 });
 
+            modelBuilder.Entity("SkillTrail.Biz.Entites.Feedback", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UpdateUserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Feedbacks");
+                });
+
             modelBuilder.Entity("SkillTrail.Biz.Entites.Group", b =>
                 {
                     b.Property<string>("Id")
@@ -129,6 +154,9 @@ namespace SkillTrail.Migrations.SQLite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Level")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Order")
                         .HasColumnType("INTEGER");
 
@@ -187,6 +215,9 @@ namespace SkillTrail.Migrations.SQLite.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("ExperiencePoints")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("GroupId")
                         .HasColumnType("TEXT");
 
@@ -214,6 +245,7 @@ namespace SkillTrail.Migrations.SQLite.Migrations
                         new
                         {
                             Id = "manager",
+                            ExperiencePoints = 0L,
                             Name = "システム管理者",
                             Role = 2,
                             UpdateDateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -249,7 +281,7 @@ namespace SkillTrail.Migrations.SQLite.Migrations
                         .IsRequired();
 
                     b.HasOne("SkillTrail.Biz.Entites.User", "User")
-                        .WithMany()
+                        .WithMany("Progresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -287,6 +319,11 @@ namespace SkillTrail.Migrations.SQLite.Migrations
             modelBuilder.Entity("SkillTrail.Biz.Entites.TaskCategory", b =>
                 {
                     b.Navigation("tasks");
+                });
+
+            modelBuilder.Entity("SkillTrail.Biz.Entites.User", b =>
+                {
+                    b.Navigation("Progresses");
                 });
 #pragma warning restore 612, 618
         }

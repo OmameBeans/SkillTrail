@@ -5,6 +5,9 @@ import { role } from "../../../entities/user";
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { useState } from "react";
 import { UserLevelDialog } from "../../../widgets/user-level-dialog";
+import SettingsIcon from '@mui/icons-material/Settings';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import HomeIcon from '@mui/icons-material/Home';
 
 export const Header = () => {
 
@@ -26,6 +29,20 @@ export const Header = () => {
                         <Typography variant="h6" component="div" onClick={() => navigation('/trainee')} sx={{ cursor: 'pointer' }}>
                             進捗管理
                         </Typography>
+                        <Typography
+                            component="div"
+                            onClick={() => navigation('/trainee')}
+                            sx={{
+                                cursor: 'pointer',
+                                fontSize: '0.875rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 0.5,
+                            }}>
+                            <HomeIcon fontSize="small"/>
+                            ホーム
+                        </Typography>
                         {isAdmin && (
                             <Typography
                                 component="div"
@@ -33,10 +50,27 @@ export const Header = () => {
                                 sx={{
                                     cursor: 'pointer',
                                     fontSize: '0.875rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
                                 }}>
-                                管理者
+                                <SettingsIcon fontSize="small"/>
+                                管理者ページ
                             </Typography>
                         )}
+                        <Typography
+                            component="div"
+                            onClick={() => navigation('/feedback')}
+                            sx={{
+                                cursor: 'pointer',
+                                fontSize: '0.875rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                            }}>
+                            <FeedbackIcon fontSize="small"/>
+                            フィードバック
+                        </Typography>
                     </Box>
                     <Box sx={{
                         display: 'flex',

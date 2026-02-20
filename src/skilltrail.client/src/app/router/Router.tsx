@@ -9,6 +9,7 @@ import { TraineePage } from "../../pages/trainee/ui/Trainee";
 import { TraineeHomePage } from "../../pages/trainee-home";
 import { TraineeProgressPage } from "../../pages/trainee-progress";
 import { AdminProgressPage } from "../../pages/admin-progress";
+import { FeedbackPage } from "../../pages/feedback";
 
 export const Router = () => {
     const router = createBrowserRouter([
@@ -16,6 +17,10 @@ export const Router = () => {
             path: "/",
             element: <Layout />,
             children: [
+                {
+                    path: "feedback",
+                    element: <FeedbackPage />
+                },
                 {
                     path: "trainee",
                     element: <TraineePage />,

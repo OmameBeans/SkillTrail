@@ -1,17 +1,20 @@
-import { endpoint, type GenericResult, type SimpleResult } from "../../../shared/type";
+import { endpoint, type GenericResult } from "../../../shared/type";
 import type {
     Progress,
     ProgressQueryServiceModel,
     UpdateProgressRequest,
     GetProgressByUserIdRequest,
     GetProgressByIdRequest,
-    UpdateProgressResponse
+    UpdateProgressResponse,
+    ExportTraineeProgressRequest,
 } from '../model/progress';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 // 現在ログイン中のユーザーの進捗一覧を取得
-export const getCurrentUserProgress = (): Promise<GenericResult<ProgressQueryServiceModel[]>> => {
-    return fetch(`${endpoint.PROGRESS}/get`).then(res => res.json()).then(data => {
+export const getCurrentUserProgress = (categoryId?: string): Promise<GenericResult<ProgressQueryServiceModel[]>> => {
+    const query = categoryId ? `?cid=${encodeURIComponent(categoryId)}` : '';
+
+    return fetch(`${endpoint.PROGRESS}/get${query}`).then(res => res.json()).then(data => {
         const result: GenericResult<ProgressQueryServiceModel[]> = data as GenericResult<ProgressQueryServiceModel[]>;
 
         if (!result) {
@@ -25,13 +28,13 @@ export const getCurrentUserProgress = (): Promise<GenericResult<ProgressQuerySer
 };
 
 // 指定されたユーザーの進捗一覧を取得
-export const getProgressByUserId = (userId: string): Promise<GenericResult<ProgressQueryServiceModel[]>> => {
+export const getProgressByUserId = (userId: string, categoryId?: string): Promise<GenericResult<ProgressQueryServiceModel[]>> => {
     return fetch(`${endpoint.PROGRESS}/getByUserId`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId } as GetProgressByUserIdRequest)
+        body: JSON.stringify({ userId, categoryId } as GetProgressByUserIdRequest)
     }).then(res => res.json()).then(data => {
         const result: GenericResult<ProgressQueryServiceModel[]> = data as GenericResult<ProgressQueryServiceModel[]>;
 
@@ -95,14 +98,34 @@ export const updateProgress = (taskId: string, status: number, note: string): Pr
     });
 };
 
-export const exportTraineeProgress = (groupId: string, groupName: string): Promise<void> => {
+type ExportTraineeProgressParams = ExportTraineeProgressRequest & {
+    groupName: string;
+    categoryName: string;
+};
+
+const sanitizeFileNameSegment = (segment: string) => {
+    const invalidChars = /[\\/:*?"<>|]/g;
+    const trimmed = segment.trim();
+    const sanitized = trimmed.replace(invalidChars, '_');
+    return sanitized.length > 0 ? sanitized : '未設定';
+};
+
+export const exportTraineeProgress = ({ groupId, groupName, categoryId, categoryName }: ExportTraineeProgressParams): Promise<void> => {
+    const normalizedGroupId = groupId.trim();
+    const normalizedCategoryId = categoryId && categoryId.trim() ? categoryId.trim() : undefined;
+    const safeGroupName = sanitizeFileNameSegment(groupName || '全ての新人');
+    const safeCategoryName = sanitizeFileNameSegment(categoryName || 'すべてのカテゴリ');
+
     return fetch(`${endpoint.PROGRESS}/ExportTraineeProgress`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ groupId }),
+        body: JSON.stringify({
+            groupId: normalizedGroupId,
+            categoryId: normalizedCategoryId,
+        }),
     })
         .then(async (response) => {
             if (!response.ok) {
@@ -116,7 +139,8 @@ export const exportTraineeProgress = (groupId: string, groupName: string): Promi
             
             const nowDate = dayjs();
             const dateString = nowDate.format('YYYYMMDDHHmmss');
-            const filename = `進捗一覧_${groupName}_${dateString}.xlsx`;
+            const filenameSegments = ['進捗一覧', safeGroupName, safeCategoryName];
+            const filename = `${filenameSegments.join('_')}_${dateString}.xlsx`;
 
             // ダウンロードリンクを作成してクリック
             const url = window.URL.createObjectURL(blob);

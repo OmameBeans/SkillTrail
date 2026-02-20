@@ -19,6 +19,7 @@ namespace SkillTrail.Biz.Extensions
             services.AddScoped<EvaluationApplicationService>();
             services.AddScoped<GroupApplicationService>();
             services.AddScoped<ProgressApplicationService>();
+            services.AddScoped<FeedbackApplicationService>();
 
             if (!int.TryParse(configuration["Level:FirstItem"], out int firstItem))
             {

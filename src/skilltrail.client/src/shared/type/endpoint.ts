@@ -8,6 +8,7 @@ export const endpoint = {
     GROUP: `${API_BASE_URL}/group`,
     PROGRESS: `${API_BASE_URL}/progress`,
     LEVEL: `${API_BASE_URL}/level`,
+    FEEDBACK: `${API_BASE_URL}/feedback`,
 } as const;
 
 export type Endpoint = typeof endpoint[keyof typeof endpoint];
